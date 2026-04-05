@@ -1604,12 +1604,12 @@ function searchUnsplash(page){
       grid.appendChild(img);
     });
     var remaining=5-uspRefreshCount;
-    if(uspCurrentPage<uspTotalPages&&remaining>0){
+    if(remaining>0){
       var moreRow=document.getElementById('usp-more-row');if(moreRow)moreRow.style.display='flex';
       var ctr2=document.getElementById('usp-counter');if(ctr2)ctr2.textContent='('+remaining+' restantes)';
     } else {
       var moreRow2=document.getElementById('usp-more-row');if(moreRow2)moreRow2.style.display='none';
-      if(remaining<=0){var ctr3=document.getElementById('usp-counter');if(ctr3)ctr3.textContent='Máx. búsquedas alcanzado';}
+      var ctr3=document.getElementById('usp-counter');if(ctr3)ctr3.textContent='Máx. búsquedas alcanzado';
     }
     document.getElementById('usp-credit').innerHTML='Fotos por <a href="https://unsplash.com?utm_source=photo_search_tool&utm_medium=referral" target="_blank" style="color:#6c63ff">Unsplash</a>';
   })
