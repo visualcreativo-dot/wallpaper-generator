@@ -117,6 +117,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .usp-thumb{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .15s;display:block}
 .usp-thumb:hover{border-color:#6c63ff;transform:scale(1.04)}
 .usp-thumb.selected{border-color:#6c63ff;border-width:3px}
+.usp-more-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border:1.5px solid #a855f7;border-radius:7px;background:linear-gradient(135deg,#f5f0ff,#fff);color:#7c3aed;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.usp-more-btn:hover{background:linear-gradient(135deg,#ede9fe,#f5f0ff);transform:translateY(-1px)}
 #save-bar .srow{display:flex;gap:6px}
 #save-bar .srow button{flex:1;padding:10px 4px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s}
 #save-bar .srow button:hover{opacity:.85}
@@ -402,7 +404,7 @@ select:focus{border-color:#6c63ff}
         <button onclick="searchUnsplash()" style="padding:6px 10px;border:none;border-radius:7px;background:#6c63ff;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Search</button>
       </div>
       <div id="usp-more-row" style="display:none;align-items:center;gap:6px;margin-bottom:5px">
-        <button id="usp-more" onclick="uspMore()" style="display:flex;align-items:center;gap:5px;padding:5px 10px;border:1.5px solid #a855f7;border-radius:7px;background:linear-gradient(135deg,#f5f0ff,#fff);color:#7c3aed;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s" onmouseover="this.style.background='linear-gradient(135deg,#ede9fe,#f5f0ff)'" onmouseout="this.style.background='linear-gradient(135deg,#f5f0ff,#fff)'">
+        <button id="usp-more" onclick="uspMore()" class="usp-more-btn">
           <span style="font-size:16px;line-height:1">↻</span> Ver más
         </button>
         <span id="usp-counter" style="font-size:9.5px;color:#a855f7;font-weight:600"></span>
