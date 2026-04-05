@@ -163,7 +163,11 @@ canvas#cv{display:block;border-radius:6px;box-shadow:0 4px 32px rgba(0,0,0,.7)}
 .ctrl{display:flex;flex-direction:column;gap:2px;margin-bottom:5px}
 .ctrl label{font-size:11.5px;color:var(--text-secondary);display:flex;justify-content:space-between}
 .ctrl label span{font-weight:700;color:var(--text-primary);min-width:32px;text-align:right}
-input[type=range]{width:100%;accent-color:#6c63ff;height:14px}
+input[type=range]{width:100%;height:14px;-webkit-appearance:none;appearance:none;background:transparent;outline:none}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(90deg,#ff2dac,#a855f7,#7c3aed)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#ff2dac,#7c3aed);border:2px solid #fff;box-shadow:0 1px 6px rgba(168,85,247,.5);margin-top:-6px;cursor:pointer}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:linear-gradient(90deg,#ff2dac,#a855f7,#7c3aed)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#ff2dac,#7c3aed);border:2px solid #fff;box-shadow:0 1px 6px rgba(168,85,247,.5);cursor:pointer}
 input[type=text]{width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;color:var(--text-primary);background:var(--bg-input);outline:none;transition:border-color .15s,background .25s,color .25s}
 input[type=text]:focus{border-color:#6c63ff}
 select{width:100%;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:11.5px;color:var(--text-label);background:var(--bg-input);outline:none;transition:border-color .15s,background .25s,color .25s}
@@ -393,17 +397,18 @@ select:focus{border-color:#6c63ff}
     <!-- ── UNSPLASH SEARCH ── -->
     <div style="margin-top:8px">
       <div class="sub" style="margin-top:0">🔍 Search free photos (Unsplash)</div>
-      <div style="display:flex;gap:5px;margin-bottom:6px">
+      <div style="display:flex;gap:5px;margin-bottom:4px">
         <input type="text" id="usp-query" placeholder="sunset, nature, abstract..." style="flex:1;font-size:11.5px" onkeydown="if(event.key==='Enter')searchUnsplash()">
         <button onclick="searchUnsplash()" style="padding:6px 10px;border:none;border-radius:7px;background:#6c63ff;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Search</button>
       </div>
+      <div id="usp-more-row" style="display:none;align-items:center;gap:6px;margin-bottom:5px">
+        <button id="usp-more" onclick="uspMore()" style="display:flex;align-items:center;gap:5px;padding:5px 10px;border:1.5px solid #a855f7;border-radius:7px;background:linear-gradient(135deg,#f5f0ff,#fff);color:#7c3aed;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s" onmouseover="this.style.background='linear-gradient(135deg,#ede9fe,#f5f0ff)'" onmouseout="this.style.background='linear-gradient(135deg,#f5f0ff,#fff)'">
+          <span style="font-size:16px;line-height:1">↻</span> Ver más
+        </button>
+        <span id="usp-counter" style="font-size:9.5px;color:#a855f7;font-weight:600"></span>
+      </div>
       <div id="usp-status" style="font-size:10px;color:#aaa;margin-bottom:4px;min-height:14px"></div>
       <div id="usp-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:4px"></div>
-      <div id="usp-nav" style="display:none;display:flex;gap:5px;justify-content:center;margin-top:4px">
-        <button onclick="uspPage(-1)" id="usp-prev" style="padding:4px 10px;border:1.5px solid #ddd;border-radius:6px;background:#fff;font-size:11px;cursor:pointer">← Prev</button>
-        <span id="usp-page-lbl" style="font-size:11px;color:#888;align-self:center">Pág 1</span>
-        <button onclick="uspPage(1)" id="usp-next" style="padding:4px 10px;border:1.5px solid #ddd;border-radius:6px;background:#fff;font-size:11px;cursor:pointer">Next →</button>
-      </div>
       <div id="usp-credit" style="font-size:9.5px;color:#bbb;text-align:center;margin-top:3px"></div>
     </div>
     <div id="imgc" style="display:none;margin-top:7px">
@@ -492,6 +497,7 @@ select:focus{border-color:#6c63ff}
       <div class="c2r">
         <span style="font-size:11px;color:#888">C1</span><button class="csw"><input type="color" id="tc1" value="#ffffff" oninput="gen()"></button>
         <span style="font-size:11px;color:#888">C2</span><button class="csw"><input type="color" id="tc2" value="#f72585" oninput="gen()"></button>
+        <button onclick="rndTitleGrad()" title="Random gradient from wallpaper colors" style="padding:4px 8px;border:1.5px solid #e0e0e0;border-radius:7px;background:#fff;font-size:11px;cursor:pointer;color:#6c63ff;font-weight:700;transition:all .15s" onmouseover="this.style.background='#f5f4ff'" onmouseout="this.style.background='#fff'">🎲 Auto</button>
       </div>
       <div class="ctrl"><label>Opacity <span id="top-val">100</span>%</label><input type="range" id="top" min="10" max="100" value="100" step="1" oninput="upd('top-val',this.value,'%');gen()"></div>
     </div>
@@ -732,13 +738,72 @@ function setRes(b){document.querySelectorAll('.resbtn').forEach(function(x){x.cl
 // ── RANDOM ──
 function rndStyle(){var s=STYLES[Math.floor(Math.random()*STYLES.length)];document.querySelectorAll('.sb').forEach(function(b){b.classList.toggle('a',b.dataset.s===s)});cStyle=s;rndColors()}
 function rndColors(){var p=getCMPalette();document.getElementById('c1').value=p[0];document.getElementById('c2').value=p[1];document.getElementById('c3').value=p[2];gen()}
+function rndTitleGrad(){
+  var cv=document.getElementById('cv');
+  var ctx=cv.getContext('2d');
+  var w=cv.width,h=cv.height;
+  // Sample points spread across canvas
+  var samples=[];
+  var pts=[[w*.15,h*.2],[w*.5,h*.3],[w*.85,h*.2],[w*.2,h*.6],[w*.8,h*.6],[w*.5,h*.8],[w*.35,h*.45],[w*.65,h*.45]];
+  pts.forEach(function(p){
+    var d=ctx.getImageData(Math.floor(p[0]),Math.floor(p[1]),1,1).data;
+    samples.push([d[0],d[1],d[2]]);
+  });
+  // Find the most dominant/vivid color as base
+  var base=samples[0],maxSat=0;
+  samples.forEach(function(c){
+    var max=Math.max(c[0],c[1],c[2])/255,min=Math.min(c[0],c[1],c[2])/255;
+    var sat=max===0?0:(max-min)/max;
+    if(sat>maxSat){maxSat=sat;base=c}
+  });
+  // Convert to HSL
+  function toHSL(c){
+    var r=c[0]/255,g=c[1]/255,b=c[2]/255;
+    var max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;
+    var h=0,s=0,l=(max+min)/2;
+    if(d!==0){
+      s=d/(1-Math.abs(2*l-1));
+      if(max===r)h=((g-b)/d)%6;
+      else if(max===g)h=(b-r)/d+2;
+      else h=(r-g)/d+4;
+      h=h*60;if(h<0)h+=360;
+    }
+    return[h,s,l];
+  }
+  function fromHSL(h,s,l){
+    h=((h%360)+360)%360;
+    s=Math.max(0,Math.min(1,s));
+    l=Math.max(0,Math.min(1,l));
+    var c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;
+    var r=0,g=0,b=0;
+    if(h<60){r=c;g=x}else if(h<120){r=x;g=c}else if(h<180){g=c;b=x}else if(h<240){g=x;b=c}else if(h<300){r=x;b=c}else{r=c;b=x}
+    return[Math.round((r+m)*255),Math.round((g+m)*255),Math.round((b+m)*255)];
+  }
+  function toHex(c){return'#'+c.map(function(v){return Math.max(0,Math.min(255,v)).toString(16).padStart(2,'0')}).join('')}
+  var hsl=toHSL(base);
+  var baseH=hsl[0],baseS=Math.max(0.6,hsl[1]),baseL=hsl[2];
+  // Analogous shift: ±30 to ±60 degrees — stays in same color family
+  var shift=30+Math.floor(Math.random()*31);// 30-60 degrees
+  if(Math.random()>0.5)shift=-shift;
+  var h1=baseH+shift;
+  var h2=baseH-shift;
+  // Make colors bright and vivid for text
+  var col1=fromHSL(h1,Math.min(1,baseS+0.2),Math.min(0.85,Math.max(0.55,baseL+0.25)));
+  var col2=fromHSL(h2,Math.min(1,baseS+0.2),Math.min(0.85,Math.max(0.55,baseL+0.25)));
+  document.getElementById('tc1').value=toHex(col1);
+  document.getElementById('tc2').value=toHex(col2);
+  // Random gradient direction
+  var fills=['gradient-h','gradient-v','gradient-d'];
+  var fill=fills[Math.floor(Math.random()*fills.length)];
+  tFill=fill;
+  document.querySelectorAll('.fwb[data-fill]').forEach(function(b){b.classList.toggle('a',b.dataset.fill===fill)});
+  gen();
+}
 function onFontChange(){
-  var font=gs('tf');
-  // Force browser to load the font before rendering
+  var font=gs('tf');// ← was missing, causing font not to update in real time
   var testEl=document.createElement('span');
   testEl.style.cssText='font-family:'+font+';position:absolute;visibility:hidden;font-size:16px';
   testEl.textContent='ABCabc';document.body.appendChild(testEl);
-  // Use document.fonts.ready if available, otherwise short timeout
   if(document.fonts&&document.fonts.ready){
     document.fonts.ready.then(function(){testEl.remove();gen()});
   } else {
@@ -1178,11 +1243,15 @@ function gen(){
 }
 
 // ── DOWNLOAD ──
+var _dlCount=0;
 function dl(fmt){
-  var now=new Date();var dateStr=now.getFullYear()+''+(now.getMonth()+1+'').padStart(2,'0')+(now.getDate()+'').padStart(2,'0');
+  _dlCount++;
+  var now=new Date();
+  var dateStr=now.getFullYear()+''+(''+(now.getMonth()+1)).padStart(2,'0')+(''+(now.getDate())).padStart(2,'0');
+  var counter=(''+_dlCount).padStart(3,'0');
   var off=document.createElement('canvas');renderTo(off,W,H);
   var a=document.createElement('a');
-  var fname='Wallpaper_productosdescargables_'+dateStr;
+  var fname='Wallpaper_productosdescargables_'+dateStr+'_'+counter;
   if(fmt==='jpeg'){a.href=off.toDataURL('image/jpeg',gv('jpq')/100);a.download=fname+'.jpg'}
   else{a.href=off.toDataURL('image/png',1.0);a.download=fname+'.png'}
   a.click();
@@ -1487,17 +1556,21 @@ function importPresets(inp){
 
 // ── UNSPLASH SEARCH ──
 var USP_KEY='ltScIlyDggIeUNqwokwOxxY-ThclqvfPanMjq5rno-0';
-var uspCurrentPage=1,uspCurrentQuery='',uspTotalPages=1;
+var uspCurrentPage=1,uspCurrentQuery='',uspTotalPages=1,uspPageOffset=0,uspRefreshCount=0;
 function searchUnsplash(page){
   var q=document.getElementById('usp-query').value.trim();
   if(!q)return;
-  page=page||1;uspCurrentQuery=q;uspCurrentPage=page;
+  if(!page||page===1){uspPageOffset=Math.floor(Math.random()*8);page=1;uspRefreshCount=0;uspCurrentQuery=q;}
+  uspCurrentPage=page;
+  var apiPage=uspPageOffset+page;
   var status=document.getElementById('usp-status');
   var grid=document.getElementById('usp-grid');
-  status.textContent='Searching...';grid.innerHTML='';
-  document.getElementById('usp-nav').style.display='none';
+  status.textContent='Buscando...';grid.innerHTML='';
   document.getElementById('usp-credit').textContent='';
-  fetch('https://api.unsplash.com/search/photos?query='+encodeURIComponent(q)+'&per_page=9&page='+page,{
+  var moreBtn=document.getElementById('usp-more');if(moreBtn)moreBtn.style.display='none';
+  var moreRow=document.getElementById('usp-more-row');if(moreRow)moreRow.style.display='none';
+  var ctr=document.getElementById('usp-counter');if(ctr)ctr.textContent='';
+  fetch('https://api.unsplash.com/search/photos?query='+encodeURIComponent(q)+'&per_page=9&page='+apiPage,{
     headers:{'Authorization':'Client-ID '+USP_KEY}
   })
   .then(function(r){
@@ -1509,12 +1582,12 @@ function searchUnsplash(page){
       }
       throw new Error('stop');
     }
-    uspTotalPages=parseInt(r.headers.get('X-Total-Pages')||1);
+    uspTotalPages=Math.min(5,parseInt(r.headers.get('X-Total-Pages')||1));
     return r.json();
   })
   .then(function(data){
-    if(!data.results||data.results.length===0){status.textContent='No results. Try another search.';return}
-    status.textContent=data.total+' photos found — click one to use it';
+    if(!data.results||data.results.length===0){status.textContent='Sin resultados. Intenta otra búsqueda.';return}
+    status.textContent=data.total+' fotos — click para usar';
     grid.innerHTML='';
     data.results.forEach(function(photo){
       var img=document.createElement('img');
@@ -1528,15 +1601,19 @@ function searchUnsplash(page){
       };
       grid.appendChild(img);
     });
-    var nav=document.getElementById('usp-nav');
-    nav.style.display='flex';
-    document.getElementById('usp-page-lbl').textContent='Page '+page+' / '+uspTotalPages;
-    document.getElementById('usp-prev').disabled=page<=1;
-    document.getElementById('usp-next').disabled=page>=uspTotalPages;
-    document.getElementById('usp-credit').innerHTML='Photos by <a href="https://unsplash.com?utm_source=photo_search_tool&utm_medium=referral" target="_blank" style="color:#6c63ff">Unsplash</a>';
+    var remaining=5-uspRefreshCount;
+    if(uspCurrentPage<uspTotalPages&&remaining>0){
+      var moreRow=document.getElementById('usp-more-row');if(moreRow)moreRow.style.display='flex';
+      var ctr2=document.getElementById('usp-counter');if(ctr2)ctr2.textContent='('+remaining+' restantes)';
+    } else {
+      var moreRow2=document.getElementById('usp-more-row');if(moreRow2)moreRow2.style.display='none';
+      if(remaining<=0){var ctr3=document.getElementById('usp-counter');if(ctr3)ctr3.textContent='Máx. búsquedas alcanzado';}
+    }
+    document.getElementById('usp-credit').innerHTML='Fotos por <a href="https://unsplash.com?utm_source=photo_search_tool&utm_medium=referral" target="_blank" style="color:#6c63ff">Unsplash</a>';
   })
-  .catch(function(e){status.textContent='Error: '+e.message});
+  .catch(function(e){if(e.message!=='stop')status.textContent='Error: '+e.message});
 }
+function uspMore(){if(uspRefreshCount>=5)return;uspRefreshCount++;searchUnsplash(uspCurrentPage+1);}
 function uspPage(dir){searchUnsplash(uspCurrentPage+dir)}
 function loadUnsplashPhoto(photo){
   var status=document.getElementById('usp-status');
@@ -1576,12 +1653,21 @@ function copyLink(){
     document.body.removeChild(ta);
   }
 }
-function shareWhatsApp(){
-  var text=encodeURIComponent('🎨 '+APP_MSG+'\n'+APP_URL);
-  var isMobile=/Android|iPhone|iPad/i.test(navigator.userAgent);
-  var url=isMobile?'whatsapp://send?text='+text:'https://web.whatsapp.com/send?text='+text;
-  window.open(url,'_blank');
+function shareGmail(){
+  var subject=encodeURIComponent('🎨 Generador de Wallpapers Gratis — productosdescargables.com');
+  var body=encodeURIComponent('¡Mira esta herramienta increíble para crear wallpapers únicos gratis!\n\n'+APP_URL+'\n\nSin registro, sin instalación. Exporta en HD, 2K y 4K.');
+  window.open('https://mail.google.com/mail/?view=cm&su='+subject+'&body='+body,'_blank');
   closeShareMenu();
+}
+function shareEmail(){
+  var subject=encodeURIComponent('🎨 Generador de Wallpapers Gratis');
+  var body=encodeURIComponent('¡Mira esta herramienta para crear wallpapers únicos gratis!\n\n'+APP_URL+'\n\nSin registro, sin instalación. Exporta en HD, 2K y 4K.');
+  window.location.href='mailto:?subject='+subject+'&body='+body;
+  closeShareMenu();
+}
+function showAbout(){
+  closeShareMenu();
+  document.getElementById('about-modal').style.display='flex';
 }
 function sharePinterest(){
   // Pinterest requires an image URL — use app preview image
@@ -1622,18 +1708,23 @@ document.addEventListener('fullscreenchange',function(){
 function initApp(){
   mkPad('ip','id2','ip-lbl',function(x,y){iPX=x;iPY=y;gen()});
   mkPad('tp2','td','tp-lbl',function(x,y){tPX=x;tPY=y;gen()});
-  // ── Mouse wheel on range sliders ──
+  // ── Sliders: wheel only works when slider is focused (clicked) ──
+  var focusedRange=null;
+  document.getElementById('pb').addEventListener('focusin',function(e){
+    if(e.target&&e.target.type==='range')focusedRange=e.target;
+  });
+  document.getElementById('pb').addEventListener('focusout',function(e){
+    if(e.target&&e.target.type==='range')focusedRange=null;
+  });
   document.getElementById('pb').addEventListener('wheel',function(e){
-    var el=e.target;
-    if(el.type!=='range')el=el.closest('input[type=range]');
-    if(!el||el.type!=='range')return;
+    if(!focusedRange||focusedRange.type!=='range')return;// only if a slider is focused
     e.preventDefault();
-    var step=parseFloat(el.step)||1;
-    var val=parseFloat(el.value)||0;
+    var step=parseFloat(focusedRange.step)||1;
+    var val=parseFloat(focusedRange.value)||0;
     var dir=e.deltaY<0?1:-1;
-    var newVal=Math.max(parseFloat(el.min),Math.min(parseFloat(el.max),val+dir*step));
-    el.value=newVal;
-    el.dispatchEvent(new Event('input',{bubbles:true}));
+    var newVal=Math.max(parseFloat(focusedRange.min),Math.min(parseFloat(focusedRange.max),val+dir*step));
+    focusedRange.value=newVal;
+    focusedRange.dispatchEvent(new Event('input',{bubbles:true}));
   },{passive:false});
   renderPresets();
   gen();
@@ -1655,17 +1746,26 @@ window.addEventListener('resize',function(){gen()});
 <div id="share-fab">
   <!-- Share menu popup -->
   <div id="share-menu" style="display:none;flex-direction:column;gap:6px;background:#1a1a2e;border-radius:14px;padding:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);margin-bottom:4px">
-    <button onclick="shareWhatsApp()" style="display:flex;align-items:center;gap:8px;background:#25d366;border:none;border-radius:9px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      WhatsApp
-    </button>
     <button onclick="sharePinterest()" style="display:flex;align-items:center;gap:8px;background:#e60023;border:none;border-radius:9px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
       Pinterest
     </button>
+    <button onclick="shareGmail()" style="display:flex;align-items:center;gap:8px;background:#ea4335;border:none;border-radius:9px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.910 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>
+      Gmail
+    </button>
+    <button onclick="shareEmail()" style="display:flex;align-items:center;gap:8px;background:#555;border:none;border-radius:9px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      Email
+    </button>
     <button onclick="copyLink()" style="display:flex;align-items:center;gap:8px;background:#6c63ff;border:none;border-radius:9px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
       <span id="copy-tip">Copiar link</span>
+    </button>
+    <div style="height:1px;background:rgba(255,255,255,.1);margin:2px 0"></div>
+    <button onclick="showAbout()" style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:8px 14px;color:#ccc;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+      About the app
     </button>
   </div>
   <!-- Main FAB button -->
@@ -1674,6 +1774,20 @@ window.addEventListener('resize',function(){gen()});
     <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
   </button>
 </div>
+<!-- About modal -->
+<div id="about-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;align-items:center;justify-content:center">
+  <div style="background:#1a1a2e;border-radius:18px;padding:28px;max-width:420px;width:90%;color:#e8e8ff;box-shadow:0 24px 80px rgba(0,0,0,.8);position:relative">
+    <button onclick="document.getElementById('about-modal').style.display='none'" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px">✕</button>
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px">🎨 Wallpaper Generator</div>
+    <div style="font-size:11px;color:#6c63ff;margin-bottom:16px">by productosdescargables.com</div>
+    <p style="font-size:12.5px;line-height:1.7;color:#b0b0d0;margin-bottom:14px">This tool runs entirely in your browser. No images, designs or personal data are sent to any server — everything stays on your device. Your work is not stored anywhere once you close the tab.</p>
+    <p style="font-size:12.5px;line-height:1.7;color:#b0b0d0;margin-bottom:20px">Built with HTML5 Canvas. Works offline once loaded. Free to use, no signup required.</p>
+    <a href="https://www.productosdescargables.com/contacto" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#6c63ff,#f72585);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:700">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      Contact / Feedback
+    </a>
+  </div>
+</div>
 <!-- Close menu when clicking outside -->
 <script>
 document.addEventListener('click',function(e){
@@ -1681,6 +1795,8 @@ document.addEventListener('click',function(e){
   if(fab&&!fab.contains(e.target)){
     document.getElementById('share-menu').style.display='none';
   }
+  var modal=document.getElementById('about-modal');
+  if(modal&&e.target===modal){modal.style.display='none'}
 });
 </script>
 </body>
