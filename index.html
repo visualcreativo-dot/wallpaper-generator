@@ -558,6 +558,7 @@ select:focus{border-color:#6c63ff}
     <button onclick="zoom(1)">+</button>
     <button onclick="zoomR()" style="font-size:10px;width:auto;padding:0 8px;border-radius:10px">Fit</button>
     <span style="font-size:10px;color:#555;margin-left:6px" id="txt-hint"></span>
+    <button onclick="toggleFS()" id="fs-btn" title="Fullscreen" style="margin-left:auto;font-size:14px;width:26px;height:26px;border-radius:50%;border:1px solid #444;background:#1a1a1a;color:#ccc;cursor:pointer;display:flex;align-items:center;justify-content:center">⛶</button>
   </div>
   <div id="co">
     <div id="cv-wrap">
@@ -1381,7 +1382,24 @@ function importPresets(inp){
   r.readAsText(f);inp.value='';
 }
 
-window.addEventListener('load',function(){
+function toggleFS(){
+  var btn=document.getElementById('fs-btn');
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().then(function(){
+      btn.textContent='✕';btn.title='Exit fullscreen';
+    }).catch(function(){});
+  } else {
+    document.exitFullscreen().then(function(){
+      btn.textContent='⛶';btn.title='Fullscreen';
+    }).catch(function(){});
+  }
+}
+document.addEventListener('fullscreenchange',function(){
+  var btn=document.getElementById('fs-btn');
+  if(btn){btn.textContent=document.fullscreenElement?'✕':'⛶'}
+  setTimeout(function(){gen()},150);
+});
+function initApp(){
   mkPad('ip','id2','ip-lbl',function(x,y){iPX=x;iPY=y;gen()});
   mkPad('tp2','td','tp-lbl',function(x,y){tPX=x;tPY=y;gen()});
   // ── Mouse wheel on range sliders ──
@@ -1392,17 +1410,27 @@ window.addEventListener('load',function(){
     e.preventDefault();
     var step=parseFloat(el.step)||1;
     var val=parseFloat(el.value)||0;
-    var dir=e.deltaY<0?1:-1;// scroll up = increase
+    var dir=e.deltaY<0?1:-1;
     var newVal=Math.max(parseFloat(el.min),Math.min(parseFloat(el.max),val+dir*step));
     el.value=newVal;
     el.dispatchEvent(new Event('input',{bubbles:true}));
   },{passive:false});
-  var co=document.getElementById('co');
-  co.addEventListener('scroll',function(){});
   renderPresets();
   gen();
+}
+// Compatibilidad con webstart.com y otros wrappers
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initApp);
+} else {
+  // DOM ya listo (common en páginas embebidas)
+  setTimeout(initApp,0);
+}
+window.addEventListener('load',function(){
+  // Fallback extra por si el canvas necesita dimensiones reales
+  if(typeof zoom_!=='undefined')gen();
 });
 window.addEventListener('resize',function(){gen()});
 </script>
 </body>
 </html>
+
