@@ -404,9 +404,7 @@ select:focus{border-color:#6c63ff}
         <button onclick="searchUnsplash()" style="padding:6px 10px;border:none;border-radius:7px;background:#6c63ff;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Search</button>
       </div>
       <div id="usp-more-row" style="display:none;align-items:center;gap:6px;margin-bottom:5px">
-        <button id="usp-more" onclick="uspMore()" class="usp-more-btn">
-          <span style="font-size:16px;line-height:1">↻</span> Ver más
-        </button>
+        <button id="usp-more" onclick="uspMore()" class="usp-more-btn">&#8635; Ver m&#225;s</button>
         <span id="usp-counter" style="font-size:9.5px;color:#a855f7;font-weight:600"></span>
       </div>
       <div id="usp-status" style="font-size:10px;color:#aaa;margin-bottom:4px;min-height:14px"></div>
@@ -1603,20 +1601,32 @@ function searchUnsplash(page){
       };
       grid.appendChild(img);
     });
-    var remaining=5-uspRefreshCount;
-    if(remaining>0){
-      var moreRow=document.getElementById('usp-more-row');if(moreRow)moreRow.style.display='flex';
-      var ctr2=document.getElementById('usp-counter');if(ctr2)ctr2.textContent='('+remaining+' restantes)';
-    } else {
-      var moreRow2=document.getElementById('usp-more-row');if(moreRow2)moreRow2.style.display='none';
-      var ctr3=document.getElementById('usp-counter');if(ctr3)ctr3.textContent='Máx. búsquedas alcanzado';
-    }
+    updateUspCounter();
     document.getElementById('usp-credit').innerHTML='Fotos por <a href="https://unsplash.com?utm_source=photo_search_tool&utm_medium=referral" target="_blank" style="color:#6c63ff">Unsplash</a>';
   })
   .catch(function(e){if(e.message!=='stop')status.textContent='Error: '+e.message});
 }
-function uspMore(){if(uspRefreshCount>=5)return;uspRefreshCount++;searchUnsplash(uspCurrentPage+1);}
-function uspPage(dir){searchUnsplash(uspCurrentPage+dir)}
+function updateUspCounter(){
+  var remaining=5-uspRefreshCount;
+  var moreRow=document.getElementById('usp-more-row');
+  var ctr=document.getElementById('usp-counter');
+  if(remaining>0){
+    if(moreRow)moreRow.style.display='flex';
+    if(ctr)ctr.textContent='('+remaining+' restantes)';
+  } else {
+    if(moreRow)moreRow.style.display='none';
+    if(ctr)ctr.textContent='';
+    // Show max reached message in status
+    var status=document.getElementById('usp-status');
+    if(status)status.textContent='Has visto todos los resultados para este término.';
+  }
+}
+function uspMore(){
+  if(uspRefreshCount>=5)return;
+  uspRefreshCount++;
+  updateUspCounter();
+  searchUnsplash(uspCurrentPage+1);
+}
 function loadUnsplashPhoto(photo){
   var status=document.getElementById('usp-status');
   status.textContent='Loading photo...';
