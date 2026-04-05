@@ -119,6 +119,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .usp-thumb.selected{border-color:#6c63ff;border-width:3px}
 .usp-more-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border:1.5px solid #a855f7;border-radius:7px;background:linear-gradient(135deg,#f5f0ff,#fff);color:#7c3aed;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
 .usp-more-btn:hover{background:linear-gradient(135deg,#ede9fe,#f5f0ff);transform:translateY(-1px)}
+#usp-nav{display:none}
+#usp-prev:disabled,#usp-next:disabled{opacity:.35;cursor:not-allowed}
 #save-bar .srow{display:flex;gap:6px}
 #save-bar .srow button{flex:1;padding:10px 4px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s}
 #save-bar .srow button:hover{opacity:.85}
@@ -400,15 +402,19 @@ select:focus{border-color:#6c63ff}
     <div style="margin-top:8px">
       <div class="sub" style="margin-top:0">🔍 Search free photos (Unsplash)</div>
       <div style="display:flex;gap:5px;margin-bottom:4px">
-        <input type="text" id="usp-query" placeholder="sunset, nature, abstract..." style="flex:1;font-size:11.5px" onkeydown="if(event.key==='Enter')searchUnsplash()">
-        <button onclick="searchUnsplash()" style="padding:6px 10px;border:none;border-radius:7px;background:#6c63ff;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Search</button>
-      </div>
-      <div id="usp-more-row" style="display:none;align-items:center;gap:6px;margin-bottom:5px">
-        <button id="usp-more" onclick="uspMore()" class="usp-more-btn">&#8635; Ver m&#225;s</button>
-        <span id="usp-counter" style="font-size:9.5px;color:#a855f7;font-weight:600"></span>
+        <input type="text" id="usp-query" placeholder="sunset, nature, abstract..." style="flex:1;font-size:11.5px" onkeydown="if(event.key==='Enter')searchUnsplash()" oninput="uspResetBtn()">
+        <button id="usp-search-btn" onclick="uspSearchOrMore()" style="padding:6px 10px;border:none;border-radius:7px;background:#6c63ff;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Search</button>
       </div>
       <div id="usp-status" style="font-size:10px;color:#aaa;margin-bottom:4px;min-height:14px"></div>
       <div id="usp-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:4px"></div>
+      <div id="usp-nav" style="min-height:28px;margin-bottom:3px;justify-content:center;align-items:center;gap:8px">
+        <button id="usp-prev" onclick="uspNav(-1)" style="padding:4px 12px;border:1.5px solid #a855f7;border-radius:7px;background:#fff;color:#7c3aed;font-size:13px;font-weight:700;cursor:pointer">&#8592;</button>
+        <span id="usp-page-lbl" style="font-size:10px;color:#888;font-weight:600"></span>
+        <button id="usp-next" onclick="uspNav(1)" style="padding:4px 12px;border:1.5px solid #a855f7;border-radius:7px;background:#fff;color:#7c3aed;font-size:13px;font-weight:700;cursor:pointer">&#8594;</button>
+      </div>
+      <div id="usp-counter-row" style="min-height:16px;margin-bottom:3px">
+        <span id="usp-counter" style="font-size:9.5px;color:#a855f7;font-weight:600"></span>
+      </div>
       <div id="usp-credit" style="font-size:9.5px;color:#bbb;text-align:center;margin-top:3px"></div>
     </div>
     <div id="imgc" style="display:none;margin-top:7px">
@@ -1557,18 +1563,27 @@ function importPresets(inp){
 // ── UNSPLASH SEARCH ──
 var USP_KEY='ltScIlyDggIeUNqwokwOxxY-ThclqvfPanMjq5rno-0';
 var uspCurrentPage=1,uspCurrentQuery='',uspTotalPages=1,uspPageOffset=0,uspRefreshCount=0;
-function searchUnsplash(page){
+function searchUnsplash(page,isNav){
   var q=document.getElementById('usp-query').value.trim();
   if(!q)return;
-  if(!page||page===1){uspPageOffset=Math.floor(Math.random()*8);page=1;uspRefreshCount=0;uspCurrentQuery=q;}
+  if(!page||page===1){
+    if(!isNav){// only reset on fresh search, not nav
+      uspPageOffset=Math.floor(Math.random()*8);
+      page=1;uspRefreshCount=0;uspCurrentQuery=q;
+      // Reset button to Search for new term
+      var btn0=document.getElementById('usp-search-btn');
+      if(btn0){btn0.textContent='Search';btn0.style.background='#6c63ff';btn0.style.border='none';btn0.disabled=false;btn0.style.cursor='pointer'}
+      var ctr0=document.getElementById('usp-counter');if(ctr0)ctr0.textContent='';
+      // Hide nav on new search
+      var nav0=document.getElementById('usp-nav');if(nav0)nav0.style.display='none';
+    }
+  }
   uspCurrentPage=page;
   var apiPage=uspPageOffset+page;
   var status=document.getElementById('usp-status');
   var grid=document.getElementById('usp-grid');
   status.textContent='Buscando...';grid.innerHTML='';
   document.getElementById('usp-credit').textContent='';
-  var moreBtn=document.getElementById('usp-more');if(moreBtn)moreBtn.style.display='none';
-  var moreRow=document.getElementById('usp-more-row');if(moreRow)moreRow.style.display='none';
   var ctr=document.getElementById('usp-counter');if(ctr)ctr.textContent='';
   fetch('https://api.unsplash.com/search/photos?query='+encodeURIComponent(q)+'&per_page=9&page='+apiPage,{
     headers:{'Authorization':'Client-ID '+USP_KEY}
@@ -1582,7 +1597,7 @@ function searchUnsplash(page){
       }
       throw new Error('stop');
     }
-    uspTotalPages=Math.min(5,parseInt(r.headers.get('X-Total-Pages')||1));
+    uspTotalPages=Math.min(5,parseInt(r.headers.get('X-Total-Pages')||5));
     return r.json();
   })
   .then(function(data){
@@ -1602,30 +1617,85 @@ function searchUnsplash(page){
       grid.appendChild(img);
     });
     updateUspCounter();
+    updateUspNav();
     document.getElementById('usp-credit').innerHTML='Fotos por <a href="https://unsplash.com?utm_source=photo_search_tool&utm_medium=referral" target="_blank" style="color:#6c63ff">Unsplash</a>';
   })
   .catch(function(e){if(e.message!=='stop')status.textContent='Error: '+e.message});
 }
-function updateUspCounter(){
-  var remaining=5-uspRefreshCount;
-  var moreRow=document.getElementById('usp-more-row');
-  var ctr=document.getElementById('usp-counter');
-  if(remaining>0){
-    if(moreRow)moreRow.style.display='flex';
-    if(ctr)ctr.textContent='('+remaining+' restantes)';
+var _uspSearched=false;// tracks if at least one search has been done
+function uspSearchOrMore(){
+  if(!_uspSearched){
+    searchUnsplash();
   } else {
-    if(moreRow)moreRow.style.display='none';
-    if(ctr)ctr.textContent='';
-    // Show max reached message in status
-    var status=document.getElementById('usp-status');
-    if(status)status.textContent='Has visto todos los resultados para este término.';
+    if(uspRefreshCount>=5){
+      var ctr=document.getElementById('usp-counter');
+      if(ctr)ctr.textContent='Type a new word to search again';
+      return;
+    }
+    uspRefreshCount++;
+    updateUspCounter();
+    searchUnsplash(uspCurrentPage+1,false);
   }
 }
-function uspMore(){
-  if(uspRefreshCount>=5)return;
-  uspRefreshCount++;
-  updateUspCounter();
-  searchUnsplash(uspCurrentPage+1);
+function uspResetBtn(){
+  _uspSearched=false;
+  uspRefreshCount=0;
+  var btn=document.getElementById('usp-search-btn');
+  if(btn){
+    btn.textContent='Search';
+    btn.style.background='#6c63ff';
+    btn.style.border='none';
+    btn.disabled=false;
+    btn.style.cursor='pointer';
+    btn.style.opacity='1';
+  }
+  var ctr=document.getElementById('usp-counter');if(ctr)ctr.textContent='';
+  var nav=document.getElementById('usp-nav');if(nav)nav.style.display='none';
+}
+function updateUspCounter(){
+  var remaining=5-uspRefreshCount;
+  var btn=document.getElementById('usp-search-btn');
+  var ctr=document.getElementById('usp-counter');
+  _uspSearched=true;
+  if(remaining>0){
+    // Switch button to ↻ More results
+    if(btn){
+      btn.innerHTML='&#8635; More results';
+      btn.style.background='linear-gradient(135deg,#a855f7,#7c3aed)';
+      btn.style.border='none';
+    }
+    if(ctr)ctr.textContent=remaining+' searches left for this term';
+  } else {
+    // Max reached — grey out but NOT disabled (user can still type new word)
+    if(btn){
+      btn.innerHTML='&#8635; More results';
+      btn.style.background='#ccc';
+      btn.style.cursor='not-allowed';
+      btn.style.opacity='0.6';
+      btn.disabled=false;// keep enabled so typing resets it
+    }
+    if(ctr)ctr.textContent='Max reached — type a new term to search again';
+  }
+}
+function uspNav(dir){
+  var newPage=uspCurrentPage+dir;
+  if(newPage<1||newPage>uspTotalPages)return;
+  // nav doesn't count as a "more results" click
+  searchUnsplash(newPage,true);
+}
+function updateUspNav(){
+  var nav=document.getElementById('usp-nav');
+  var lbl=document.getElementById('usp-page-lbl');
+  var prev=document.getElementById('usp-prev');
+  var next=document.getElementById('usp-next');
+  if(uspTotalPages>1){
+    if(nav)nav.style.display='flex';
+    if(lbl)lbl.textContent=uspCurrentPage+' / '+uspTotalPages;
+    if(prev)prev.disabled=uspCurrentPage<=1;
+    if(next)next.disabled=uspCurrentPage>=uspTotalPages;
+  } else {
+    if(nav)nav.style.display='none';
+  }
 }
 function loadUnsplashPhoto(photo){
   var status=document.getElementById('usp-status');
