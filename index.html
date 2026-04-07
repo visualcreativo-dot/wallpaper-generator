@@ -156,6 +156,12 @@ canvas#cv{display:block;border-radius:6px;box-shadow:0 4px 32px rgba(0,0,0,.7)}
 #txt-cursor{position:absolute;width:20px;height:20px;background:#6c63ff;border:2px solid #fff;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;display:none;box-shadow:0 2px 8px rgba(0,0,0,.4)}
 .sec{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);margin-bottom:4px}
 .sub{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:6px 0 3px}
+.acc-hdr{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:5px 0;border-bottom:1px solid var(--border);margin-bottom:4px;user-select:none}
+.acc-hdr:hover{color:#6c63ff}
+.acc-hdr .acc-arrow{font-size:14px;transition:transform .2s;color:#aaa}
+.acc-hdr.open .acc-arrow{transform:rotate(180deg)}
+.acc-body{overflow:hidden;transition:max-height .25s ease,opacity .2s;max-height:2000px;opacity:1}
+.acc-body.closed{max-height:0;opacity:0;pointer-events:none}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:4px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px}
 .sb,.shb,.fwb,.tab2,.blb,.vigb,.nmb,.filtb{border:1.5px solid var(--border);border-radius:7px;background:var(--bg-btn);cursor:pointer;color:var(--text-label);transition:all .12s;text-align:center}
@@ -326,7 +332,7 @@ select:focus{border-color:#6c63ff}
     </div>
     <div style="font-size:10.5px;color:#888;text-align:center;margin-bottom:8px" id="info">1080×1920 px</div>
     <div class="div"></div>
-    <button class="bigbtn" style="background:#e74c3c;color:#fff;font-size:11px" onclick="resetAll()">🔄 New design (reset all)</button>
+    <button class="bigbtn" style="background:#e74c3c;color:#fff;font-size:11px" onclick="if(confirm('Start a new design? All changes will be lost.'))location.reload()">🔄 New design</button>
   </div>
 
   <!-- STYLE -->
@@ -351,6 +357,7 @@ select:focus{border-color:#6c63ff}
     <div class="sub">Background color</div>
     <div class="c2r"><span style="font-size:11px;color:#888">BG</span><button class="csw"><input type="color" id="bg-color" value="#0a0a1a" oninput="gen()"></button><span style="font-size:10px;color:#aaa;margin-left:4px">overrides palette bg</span></div>
     <div class="trow" style="margin-top:4px"><span style="font-size:11px;color:#555">Use custom BG</span><label class="tog"><input type="checkbox" id="bg-on" onchange="gen()"><span class="ts"></span></label></div>
+    
     <div class="sub">Color mode</div>
     <div style="display:flex;gap:3px;margin-bottom:6px">
       <button class="fwb a" data-cm="normal" onclick="setCM(this)">Normal</button>
@@ -358,8 +365,10 @@ select:focus{border-color:#6c63ff}
       <button class="fwb" data-cm="deep" onclick="setCM(this)">Deep</button>
       <button class="fwb" data-cm="mono" onclick="setCM(this)">Mono</button>
     </div>
+    
     <div class="sub">Style opacity</div>
     <div class="ctrl"><label>Opacity <span id="st-op-val">100</span>%</label><input type="range" id="st-op" min="5" max="100" value="100" step="1" oninput="upd('st-op-val',this.value,'%');gen()"></div>
+    
     <div class="sub">Transforms</div>
     <div class="ctrl"><label>Scale <span id="st-sc-val">100</span>%</label><input type="range" id="st-sc" min="20" max="300" value="100" step="1" oninput="upd('st-sc-val',this.value,'%');gen()"></div>
     <div class="ctrl"><label>Rotation <span id="st-rt-val">0</span>°</label><input type="range" id="st-rt" min="0" max="360" value="0" step="1" oninput="upd('st-rt-val',this.value,'°');gen()"></div>
@@ -369,6 +378,7 @@ select:focus{border-color:#6c63ff}
       <button class="flib" id="st-fx" onclick="tF('st-fx')">↔ Flip H</button>
       <button class="flib" id="st-fy" onclick="tF('st-fy')">↕ Flip V</button>
     </div>
+    
     <div class="sub">Colors</div>
     <div class="cr" id="color-row">
       <div class="vg-item"><button class="csw"><input type="color" id="c1" value="#6c63ff" oninput="gen()"></button><button class="cx-del" onclick="delBaseColor('c1')" title="Remove">×</button></div>
@@ -385,19 +395,58 @@ select:focus{border-color:#6c63ff}
   <!-- SHAPES -->
   <div class="tp" id="tp-shapes">
     <div class="trow"><span class="sec" style="margin:0">Shape overlay</span><label class="tog"><input type="checkbox" id="sh-on" onchange="gen()"><span class="ts"></span></label></div>
-    <div class="g3" style="gap:4px">
+
+    <!-- Popular -->
+    <div class="sub" style="margin-top:4px">⭐ Popular</div>
+    <div class="g3" style="gap:4px;margin-bottom:6px">
       <button class="shb a" data-sh="circles" onclick="setSh(this)">Circles</button>
+      <button class="shb" data-sh="stars" onclick="setSh(this)">Stars</button>
+      <button class="shb" data-sh="hearts" onclick="setSh(this)">Hearts</button>
+      <button class="shb" data-sh="dots" onclick="setSh(this)">Dots</button>
+      <button class="shb" data-sh="lines" onclick="setSh(this)">Lines</button>
+      <button class="shb" data-sh="crosses" onclick="setSh(this)">Crosses</button>
+    </div>
+
+    <!-- Curves -->
+    <div class="sub">🔵 Curves</div>
+    <div class="g3" style="gap:4px;margin-bottom:6px">
+      <button class="shb" data-sh="blob" onclick="setSh(this)">Blob</button>
+      <button class="shb" data-sh="ovals" onclick="setSh(this)">Ovals</button>
+      <button class="shb" data-sh="arcs" onclick="setSh(this)">Arcs</button>
+    </div>
+
+    <!-- Geometric -->
+    <div class="sub">🔷 Geometric</div>
+    <div class="g3" style="gap:4px;margin-bottom:6px">
       <button class="shb" data-sh="triangles" onclick="setSh(this)">Triangles</button>
       <button class="shb" data-sh="hexagons" onclick="setSh(this)">Hexagons</button>
-      <button class="shb" data-sh="stars" onclick="setSh(this)">Stars</button>
       <button class="shb" data-sh="diamonds" onclick="setSh(this)">Diamonds</button>
-      <button class="shb" data-sh="lines" onclick="setSh(this)">Lines</button>
-      <button class="shb" data-sh="dots" onclick="setSh(this)">Dots</button>
-      <button class="shb" data-sh="crosses" onclick="setSh(this)">Crosses</button>
-      <button class="shb" data-sh="blob" onclick="setSh(this)">Blob</button>
+      <button class="shb" data-sh="squares" onclick="setSh(this)">Squares</button>
+      <button class="shb" data-sh="arrows" onclick="setSh(this)">Arrows</button>
       <button class="shb" data-sh="rocket" onclick="setSh(this)">Rocket</button>
     </div>
     <button class="bigbtn" style="background:#6c63ff22;color:#6c63ff;border:1.5px solid #6c63ff44;font-size:11px;margin-top:6px" onclick="rndShape()">🎲 Random shape + settings</button>
+
+    <!-- Shape Color -->
+    <div class="sub">Color</div>
+    <div class="trow" style="margin-bottom:5px">
+      <span style="font-size:11px;color:#555">Custom color</span>
+      <label class="tog"><input type="checkbox" id="sh-color-on" onchange="toggleShColor(this)"><span class="ts"></span></label>
+    </div>
+    <div id="sh-color-row" style="display:none;flex-direction:column;gap:6px;margin-bottom:5px">
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        <span style="font-size:11px;color:#888;align-self:center">C1</span><button class="csw"><input type="color" id="sh-c1" value="#ff2dac" oninput="gen()"></button>
+        <span style="font-size:11px;color:#888;align-self:center">C2</span><button class="csw"><input type="color" id="sh-c2" value="#4cc9f0" oninput="gen()"></button>
+        <span style="font-size:11px;color:#888;align-self:center">C3</span><button class="csw"><input type="color" id="sh-c3" value="#06d6a0" oninput="gen()"></button>
+        <button onclick="rndShapeColors()" title="Random" style="padding:4px 8px;border:1.5px solid #e0e0e0;border-radius:7px;background:#fff;font-size:13px;cursor:pointer;color:#6c63ff;font-weight:700">🎲</button>
+      </div>
+    </div>
+
+    <!-- Distort -->
+    
+    <div class="sub">Distort</div>
+    <div class="ctrl"><label>Distort <span id="sh-dist-val">0</span></label><input type="range" id="sh-dist" min="0" max="100" value="0" step="1" oninput="upd('sh-dist-val',this.value,'');gen()"></div>
+
     <div class="ctrl" style="margin-top:4px"><label>Opacity <span id="so-val">40</span>%</label><input type="range" id="so" min="5" max="90" value="40" step="1" oninput="upd('so-val',this.value,'%');gen()"></div>
     <div class="ctrl"><label>Size <span id="ss-val">5</span></label><input type="range" id="ss" min="1" max="10" value="5" step="1" oninput="upd('ss-val',this.value,'');gen()"></div>
     <div class="ctrl"><label>Rotation <span id="shr-val">0</span>°</label><input type="range" id="shr" min="0" max="360" value="0" step="1" oninput="upd('shr-val',this.value,'°');gen()"></div>
@@ -410,8 +459,29 @@ select:focus{border-color:#6c63ff}
     <div class="trow"><span class="sec" style="margin:0">Image overlay</span><label class="tog"><input type="checkbox" id="img-on" onchange="gen()"><span class="ts"></span></label></div>
     <div id="dz" onclick="document.getElementById('ii').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="dropImg(event)"><div id="dl2">+ Upload or drag & drop image (max 5 MB)</div></div>
     <input type="file" id="ii" accept="image/*" style="display:none" onchange="loadImg(this)">
+
+    <!-- ── PEXELS SEARCH ── -->
+    <div style="margin-top:8px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+      <div class="sub" style="margin-top:0">🔍 Search free photos (Pexels)</div>
+      <div style="display:flex;gap:5px;margin-bottom:4px">
+        <input type="text" id="pex-query" placeholder="sunset, nature, abstract..." style="flex:1;font-size:11.5px" onkeydown="if(event.key==='Enter')searchPexels()" oninput="pexResetBtn()">
+        <button id="pex-search-btn" onclick="pexSearchOrMore()" style="padding:6px 10px;border:none;border-radius:7px;background:#05a081;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Search</button>
+      </div>
+      <div id="pex-status" style="font-size:10px;color:#aaa;margin-bottom:4px;min-height:14px"></div>
+      <div id="pex-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:4px"></div>
+      <div id="pex-nav" style="display:none;min-height:28px;margin-bottom:3px;justify-content:center;align-items:center;gap:8px">
+        <button id="pex-prev" onclick="pexNav(-1)" style="padding:4px 12px;border:1.5px solid #05a081;border-radius:7px;background:#fff;color:#05a081;font-size:13px;font-weight:700;cursor:pointer">&#8592;</button>
+        <span id="pex-page-lbl" style="font-size:10px;color:#888;font-weight:600"></span>
+        <button id="pex-next" onclick="pexNav(1)" style="padding:4px 12px;border:1.5px solid #05a081;border-radius:7px;background:#fff;color:#05a081;font-size:13px;font-weight:700;cursor:pointer">&#8594;</button>
+      </div>
+      <div id="pex-counter-row" style="min-height:16px;margin-bottom:3px">
+        <span id="pex-counter" style="font-size:9.5px;color:#05a081;font-weight:600"></span>
+      </div>
+      <div id="pex-credit" style="font-size:9.5px;color:#bbb;text-align:center;margin-top:3px"></div>
+    </div>
+
     <!-- ── UNSPLASH SEARCH ── -->
-    <div style="margin-top:8px">
+    <div style="margin-top:10px">
       <div class="sub" style="margin-top:0">🔍 Search free photos (Unsplash)</div>
       <div style="display:flex;gap:5px;margin-bottom:4px">
         <input type="text" id="usp-query" placeholder="sunset, nature, abstract..." style="flex:1;font-size:11.5px" onkeydown="if(event.key==='Enter')searchUnsplash()" oninput="uspResetBtn()">
@@ -430,21 +500,75 @@ select:focus{border-color:#6c63ff}
       <div id="usp-credit" style="font-size:9.5px;color:#bbb;text-align:center;margin-top:3px"></div>
     </div>
     <div id="imgc" style="display:none;margin-top:7px">
-      <div class="sub" style="margin-top:0">Blend</div>
+      <div class="sub" style="margin-top:0">Blend mode</div>
       <div class="ctrl"><label>Opacity <span id="io-val">85</span>%</label><input type="range" id="io" min="5" max="100" value="85" step="1" oninput="upd('io-val',this.value,'%');gen()"></div>
       <div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:5px">
-        <button class="blb a" data-bm="overlay" onclick="setBM(this)">Overlay</button>
+        <button class="blb a" data-bm="source-over" onclick="setBM(this)">Normal</button>
+        <button class="blb" data-bm="overlay" onclick="setBM(this)">Overlay</button>
         <button class="blb" data-bm="screen" onclick="setBM(this)">Screen</button>
         <button class="blb" data-bm="multiply" onclick="setBM(this)">Multiply</button>
         <button class="blb" data-bm="hard-light" onclick="setBM(this)">Hard light</button>
         <button class="blb" data-bm="color-dodge" onclick="setBM(this)">Dodge</button>
         <button class="blb" data-bm="luminosity" onclick="setBM(this)">Luminosity</button>
       </div>
-      <div class="sub">Color grading</div>
-      <div class="ctrl"><label>Palette grading <span id="ig-val">50</span>%</label><input type="range" id="ig" min="0" max="100" value="50" step="1" oninput="upd('ig-val',this.value,'%');gen()"></div>
-      <div class="trow"><span style="font-size:11px;color:#555">Monochrome tint</span><label class="tog"><input type="checkbox" id="mono-on" onchange="gen()"><span class="ts"></span></label></div>
-      <div class="c2r"><span style="font-size:11px;color:#888">Tint</span><button class="csw"><input type="color" id="mono-color" value="#6c63ff" oninput="gen()"></button><div class="ctrl" style="flex:1;margin:0 0 0 6px"><label>Strength <span id="mono-str-val">70</span>%</label><input type="range" id="mono-str" min="10" max="100" value="70" step="1" oninput="upd('mono-str-val',this.value,'%');gen()"></div></div>
-      <div class="sub">Filters</div>
+
+      <!-- Blend Color -->
+      
+    <div class="sub">Blend Color</div>
+      <div class="trow" style="margin-bottom:6px">
+        <span style="font-size:11px;color:#555">Enable</span>
+        <label class="tog"><input type="checkbox" id="bc-on" onchange="gen()"><span class="ts"></span></label>
+      </div>
+      <div id="bc-ctrl" style="display:none">
+        <div class="c2r" style="margin-bottom:4px">
+          <span style="font-size:11px;color:#888">Color</span>
+          <button class="csw"><input type="color" id="bc-color" value="#6c63ff" oninput="gen()"></button>
+        </div>
+        <div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:5px">
+          <button class="blb a" data-bcm="multiply" onclick="setBCM(this)">Multiply</button>
+          <button class="blb" data-bcm="screen" onclick="setBCM(this)">Screen</button>
+          <button class="blb" data-bcm="overlay" onclick="setBCM(this)">Overlay</button>
+          <button class="blb" data-bcm="color" onclick="setBCM(this)">Color</button>
+          <button class="blb" data-bcm="hue" onclick="setBCM(this)">Hue</button>
+          <button class="blb" data-bcm="hard-light" onclick="setBCM(this)">Hard light</button>
+        </div>
+        <div class="ctrl"><label>Alpha <span id="bc-alpha-val">50</span>%</label><input type="range" id="bc-alpha" min="0" max="100" value="50" step="1" oninput="upd('bc-alpha-val',this.value,'%');gen()"></div>
+      </div>
+
+      <!-- Color Overlay -->
+      
+    <div class="sub">Color Overlay</div>
+      <div style="display:flex;gap:4px;margin-bottom:5px">
+        <button class="fwb a" data-comode="none" onclick="setCoMode(this)" style="flex:1;font-size:10px">Off</button>
+        <button class="fwb" data-comode="mono" onclick="setCoMode(this)" style="flex:1;font-size:10px">Mono</button>
+        <button class="fwb" data-comode="multi" onclick="setCoMode(this)" style="flex:1;font-size:10px">Multi</button>
+      </div>
+      <div id="co-mono-ctrl" style="display:none">
+        <div class="c2r"><span style="font-size:11px;color:#888">Color</span><button class="csw"><input type="color" id="co-color" value="#6c63ff" oninput="gen()"></button><div class="ctrl" style="flex:1;margin:0 0 0 6px"><label>Strength <span id="co-str-val">0</span>%</label><input type="range" id="co-str" min="0" max="100" value="0" step="1" oninput="upd('co-str-val',this.value,'%');gen()"></div></div>
+      </div>
+      <div id="co-multi-ctrl" style="display:none">
+        <div class="c2r" style="margin-bottom:4px">
+          <span style="font-size:11px;color:#888">C1</span><button class="csw"><input type="color" id="co-c1" value="#6c63ff" oninput="gen()"></button>
+          <span style="font-size:11px;color:#888">C2</span><button class="csw"><input type="color" id="co-c2" value="#f72585" oninput="gen()"></button>
+          <span style="font-size:11px;color:#888">C3</span><button class="csw"><input type="color" id="co-c3" value="#4cc9f0" oninput="gen()"></button>
+          <button onclick="rndColorOverlay()" title="Random" style="padding:4px 8px;border:1.5px solid #e0e0e0;border-radius:7px;background:#fff;font-size:11px;cursor:pointer;color:#6c63ff;font-weight:700">🎲</button>
+        </div>
+        <div class="ctrl"><label>Strength <span id="co-mstr-val">0</span>%</label><input type="range" id="co-mstr" min="0" max="100" value="0" step="1" oninput="upd('co-mstr-val',this.value,'%');gen()"></div>
+      </div>
+
+      
+    <div class="sub">Color grading</div>
+      <div class="ctrl"><label>Palette grading <span id="ig-val">0</span>%</label><input type="range" id="ig" min="0" max="100" value="0" step="1" oninput="upd('ig-val',this.value,'%');gen()"></div>
+
+      
+    <div class="sub">Adjustments</div>
+      <div class="ctrl"><label>Brightness <span id="ibri-val">0</span></label><input type="range" id="ibri" min="-100" max="100" value="0" step="1" oninput="upd('ibri-val',this.value,'');gen()"></div>
+      <div class="ctrl"><label>Contrast <span id="icon-val">0</span></label><input type="range" id="icon" min="-100" max="100" value="0" step="1" oninput="upd('icon-val',this.value,'');gen()"></div>
+      <div class="ctrl"><label>Blur <span id="iblur-val">0</span>px</label><input type="range" id="iblur" min="0" max="40" value="0" step="1" oninput="upd('iblur-val',this.value,'px');gen()"></div>
+      <div class="ctrl"><label>Pixelate <span id="ipix-val">0</span></label><input type="range" id="ipix" min="0" max="50" value="0" step="1" oninput="upd('ipix-val',this.value,'');gen()"></div>
+
+      
+    <div class="sub">Filters</div>
       <div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:5px">
         <button class="filtb a" data-f="none" onclick="setFilt(this)">None</button>
         <button class="filtb" data-f="vivid" onclick="setFilt(this)">Vivid</button>
@@ -457,7 +581,13 @@ select:focus{border-color:#6c63ff}
       <div class="sub">Position — drag pad or click canvas</div>
       <div class="dpad" id="ip"><div class="pgrid"></div><div class="pdot" id="id2"></div></div>
       <div class="plbl" id="ip-lbl">X: 50%  Y: 50%</div>
-      <div class="sub">Transform</div>
+      <div style="display:flex;gap:4px;margin-bottom:5px">
+        <button class="fwb" onclick="setImgPos('left')" style="flex:1;font-size:10px">← Left</button>
+        <button class="fwb" onclick="setImgPos('center')" style="flex:1;font-size:10px">Center</button>
+        <button class="fwb" onclick="setImgPos('right')" style="flex:1;font-size:10px">Right →</button>
+      </div>
+      
+    <div class="sub">Transform</div>
       <div class="ctrl"><label>Scale <span id="isc-val">100</span>%</label><input type="range" id="isc" min="10" max="300" value="100" step="1" oninput="upd('isc-val',this.value,'%');gen()"></div>
       <div class="ctrl"><label>Rotation <span id="irt-val">0</span>°</label><input type="range" id="irt" min="-180" max="180" value="0" step="1" oninput="upd('irt-val',this.value,'°');gen()"></div>
       <div class="ctrl"><label>Oblique X <span id="iskx-val">0</span>°</label><input type="range" id="iskx" min="-60" max="60" value="0" step="1" oninput="upd('iskx-val',this.value,'°');gen()"></div>
@@ -478,8 +608,9 @@ select:focus{border-color:#6c63ff}
 
     <!-- ── TITLE ── -->
     <div style="background:#fff;border:1.5px solid #e0e0e0;border-radius:9px;padding:9px 10px;margin-bottom:8px">
-      <div class="trow"><span class="sec" style="margin:0;color:#6c63ff">Title</span><label class="tog"><input type="checkbox" id="tx-on" onchange="gen()"><span class="ts"></span></label></div>
-      <input type="text" id="tl1" placeholder="Main title..." value="Your Title" oninput="gen()" style="font-size:13px;font-weight:600;margin-bottom:6px">
+      <div class="trow"><span class="sec" style="margin:0;color:#6c63ff">Title</span><label class="tog"><input type="checkbox" id="tx-on" onchange="toggleEffectCtrl('title-ctrl',this);gen()"><span class="ts"></span></label></div>
+      <div id="title-ctrl" style="display:none"><input type="text" id="tl1" placeholder="Main title..." value="Your Title" maxlength="60" oninput="gen()" style="font-size:13px;font-weight:600;margin-bottom:3px">
+      <div style="font-size:9px;color:#aaa;text-align:right;margin-bottom:4px"><span id="tl1-count">10</span>/60</div>
       <div class="sub" style="margin-top:4px">Font</div>
       <select id="tf" onchange="onFontChange()">
         <optgroup label="Sans / Display">
@@ -520,14 +651,15 @@ select:focus{border-color:#6c63ff}
       <div class="ctrl"><label>Opacity <span id="top-val">100</span>%</label><input type="range" id="top" min="10" max="100" value="100" step="1" oninput="upd('top-val',this.value,'%');gen()"></div>
     </div>
 
+      </div>
     <!-- ── SUBTITLE ── -->
     <div style="background:#fff;border:1.5px solid #e0e0e0;border-radius:9px;padding:9px 10px;margin-bottom:8px">
-      <div class="trow"><span class="sec" style="margin:0;color:#e67e22">Subtitle / Paragraph</span><label class="tog"><input type="checkbox" id="tx2-on" onchange="gen()"><span class="ts"></span></label></div>
-      <textarea id="tl2" placeholder="Subtitle or paragraph text (up to 480 chars)..." maxlength="480" oninput="gen()" style="width:100%;padding:6px 9px;border:1.5px solid #e0e0e0;border-radius:6px;font-size:11px;color:#555;background:#fff;outline:none;resize:vertical;min-height:54px;max-height:120px;line-height:1.4;font-family:inherit" onfocus="this.style.borderColor='#6c63ff'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
+      <div class="trow"><span class="sec" style="margin:0;color:#e67e22">Subtitle / Paragraph</span><label class="tog"><input type="checkbox" id="tx2-on" onchange="onSubtitleToggle(this);toggleEffectCtrl('subtitle-ctrl',this)"><span class="ts"></span></label></div>
+      <div id="subtitle-ctrl" style="display:none"><textarea id="tl2" placeholder="Subtitle or paragraph text (up to 480 chars)..." maxlength="480" oninput="gen()" style="width:100%;padding:6px 9px;border:1.5px solid #e0e0e0;border-radius:6px;font-size:11px;color:#555;background:#fff;outline:none;resize:vertical;min-height:54px;max-height:120px;line-height:1.4;font-family:inherit" onfocus="this.style.borderColor='#6c63ff'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
       <div class="sub">Alignment</div>
       <div style="display:flex;gap:3px;margin-bottom:5px">
-        <button class="tab2 a" data-ta2="center" onclick="setTA2(this)">≡ Center</button>
         <button class="tab2" data-ta2="left" onclick="setTA2(this)">≡ Left</button>
+        <button class="tab2 a" data-ta2="center" onclick="setTA2(this)">≡ Center</button>
         <button class="tab2" data-ta2="right" onclick="setTA2(this)">≡ Right</button>
       </div>
       <div class="sub">Font</div>
@@ -569,17 +701,19 @@ select:focus{border-color:#6c63ff}
       <div class="ctrl"><label>Opacity <span id="top2-val">100</span>%</label><input type="range" id="top2" min="10" max="100" value="100" step="1" oninput="upd('top2-val',this.value,'%');gen()"></div>
     </div>
 
+      </div>
     <!-- ── SHARED POSITION & STYLE ── -->
     <div class="sub">Position — drag pad or click canvas button</div>
     <div class="dpad" id="tp2"><div class="pgrid"></div><div class="pdot" id="td"></div></div>
     <div class="plbl" id="tp-lbl">X: 50%  Y: 50%</div>
     <div style="display:flex;gap:3px;margin-bottom:5px">
-      <button class="tab2 a" data-ta="center" onclick="setTA(this)">≡ Center</button>
       <button class="tab2" data-ta="left" onclick="setTA(this)">≡ Left</button>
+      <button class="tab2 a" data-ta="center" onclick="setTA(this)">≡ Center</button>
       <button class="tab2" data-ta="right" onclick="setTA(this)">≡ Right</button>
     </div>
     <div class="ctrl"><label>Rotation <span id="trt-val">0</span>°</label><input type="range" id="trt" min="-180" max="180" value="0" step="1" oninput="upd('trt-val',this.value,'°');gen()"></div>
     <div class="ctrl"><label>Title–subtitle gap <span id="tlg-val">5</span></label><input type="range" id="tlg" min="0" max="20" value="5" step="1" oninput="upd('tlg-val',this.value,'');gen()"></div>
+    
     <div class="sub">Shadow (shared)</div>
     <div class="c2r"><span style="font-size:11px;color:#888">Color</span><button class="csw"><input type="color" id="tshadow-color" value="#000000" oninput="gen()"></button></div>
     <div class="ctrl"><label>Shadow size <span id="tsb-val">0</span></label><input type="range" id="tsb" min="0" max="60" value="0" step="1" oninput="upd('tsb-val',this.value,'');gen()"></div>
@@ -589,34 +723,38 @@ select:focus{border-color:#6c63ff}
 
   <!-- EFFECTS -->
   <div class="tp" id="tp-effects">
-    <div class="trow"><span class="sec" style="margin:0">Vignette</span><label class="tog"><input type="checkbox" id="vig-on" onchange="gen()"><span class="ts"></span></label></div>
-    <div style="display:flex;gap:3px;margin-bottom:5px">
-      <button class="vigb a" data-vt="solid" onclick="setVig(this)">Solid</button>
-      <button class="vigb" data-vt="gradient" onclick="setVig(this)">Gradient</button>
-    </div>
-    <div id="vig-solid-ctrl">
-      <div class="c2r"><span style="font-size:11px;color:#888">Color</span><button class="csw"><input type="color" id="vs1" value="#000000" oninput="gen()"></button></div>
-    </div>
-    <div id="vig-grad-ctrl" style="display:none">
-      <div id="vig-grad-row">
-        <div class="vg-item"><button class="csw"><input type="color" id="vg1" value="#000000" oninput="gen()"></button><button class="vg-del" onclick="delVigColor(0)">×</button></div>
-        <div class="vg-item"><button class="csw"><input type="color" id="vg2" value="#240046" oninput="gen()"></button><button class="vg-del" onclick="delVigColor(1)">×</button></div>
-        <div class="vg-item"><button class="csw"><input type="color" id="vg3" value="#ff0054" oninput="gen()"></button><button class="vg-del" onclick="delVigColor(2)">×</button></div>
-        <button class="ib" id="vg-add" onclick="addVigColor()">+</button>
-        <button class="ib" onclick="rndVigColors()">↻</button>
+    <div class="trow"><span class="sec" style="margin:0">Vignette</span><label class="tog"><input type="checkbox" id="vig-on" onchange="toggleEffectCtrl('vig-ctrl',this);gen()"><span class="ts"></span></label></div>
+    <div id="vig-ctrl" style="display:none">
+      <div style="display:flex;gap:3px;margin-bottom:5px">
+        <button class="vigb a" data-vt="solid" onclick="setVig(this)">Solid</button>
+        <button class="vigb" data-vt="gradient" onclick="setVig(this)">Gradient</button>
       </div>
+      <div id="vig-solid-ctrl">
+        <div class="c2r"><span style="font-size:11px;color:#888">Color</span><button class="csw"><input type="color" id="vs1" value="#000000" oninput="gen()"></button></div>
+      </div>
+      <div id="vig-grad-ctrl" style="display:none">
+        <div id="vig-grad-row">
+          <div class="vg-item"><button class="csw"><input type="color" id="vg1" value="#000000" oninput="gen()"></button><button class="vg-del" onclick="delVigColor(0)">×</button></div>
+          <div class="vg-item"><button class="csw"><input type="color" id="vg2" value="#240046" oninput="gen()"></button><button class="vg-del" onclick="delVigColor(1)">×</button></div>
+          <div class="vg-item"><button class="csw"><input type="color" id="vg3" value="#ff0054" oninput="gen()"></button><button class="vg-del" onclick="delVigColor(2)">×</button></div>
+          <button class="ib" id="vg-add" onclick="addVigColor()">+</button>
+          <button class="ib" onclick="rndVigColors()">↻</button>
+        </div>
+      </div>
+      <div class="ctrl"><label>Intensity <span id="vi-val">80</span>%</label><input type="range" id="vi" min="5" max="100" value="80" step="1" oninput="upd('vi-val',this.value,'%');gen()"></div>
+      <div class="ctrl"><label>Spread <span id="vs-val">55</span>%</label><input type="range" id="vs" min="10" max="100" value="55" step="1" oninput="upd('vs-val',this.value,'%');gen()"></div>
+      <div class="ctrl"><label>Opacity <span id="vop-val">100</span>%</label><input type="range" id="vop" min="5" max="100" value="100" step="1" oninput="upd('vop-val',this.value,'%');gen()"></div>
     </div>
-    <div class="ctrl"><label>Intensity <span id="vi-val">80</span>%</label><input type="range" id="vi" min="5" max="100" value="80" step="1" oninput="upd('vi-val',this.value,'%');gen()"></div>
-    <div class="ctrl"><label>Spread <span id="vs-val">55</span>%</label><input type="range" id="vs" min="10" max="100" value="55" step="1" oninput="upd('vs-val',this.value,'%');gen()"></div>
-    <div class="ctrl"><label>Opacity <span id="vop-val">100</span>%</label><input type="range" id="vop" min="5" max="100" value="100" step="1" oninput="upd('vop-val',this.value,'%');gen()"></div>
     <div class="div"></div>
-    <div class="trow"><span class="sec" style="margin:0">Noise</span><label class="tog"><input type="checkbox" id="noise-on" onchange="gen()"><span class="ts"></span></label></div>
-    <div style="display:flex;gap:3px;margin-bottom:5px">
-      <button class="nmb a" data-nm="mono" onclick="setNM(this)">Mono</button>
-      <button class="nmb" data-nm="color" onclick="setNM(this)">Color</button>
+    <div class="trow"><span class="sec" style="margin:0">Noise</span><label class="tog"><input type="checkbox" id="noise-on" onchange="toggleEffectCtrl('noise-ctrl',this);gen()"><span class="ts"></span></label></div>
+    <div id="noise-ctrl" style="display:none">
+      <div style="display:flex;gap:3px;margin-bottom:5px">
+        <button class="nmb a" data-nm="mono" onclick="setNM(this)">Mono</button>
+        <button class="nmb" data-nm="color" onclick="setNM(this)">Color</button>
+      </div>
+      <div class="ctrl"><label>Amount <span id="na-val">30</span>%</label><input type="range" id="na" min="1" max="100" value="30" step="1" oninput="upd('na-val',this.value,'%');gen()"></div>
+      <div class="ctrl"><label>Opacity <span id="nop-val">50</span>%</label><input type="range" id="nop" min="5" max="100" value="50" step="1" oninput="upd('nop-val',this.value,'%');gen()"></div>
     </div>
-    <div class="ctrl"><label>Amount <span id="na-val">30</span>%</label><input type="range" id="na" min="1" max="100" value="30" step="1" oninput="upd('na-val',this.value,'%');gen()"></div>
-    <div class="ctrl"><label>Opacity <span id="nop-val">50</span>%</label><input type="range" id="nop" min="5" max="100" value="50" step="1" oninput="upd('nop-val',this.value,'%');gen()"></div>
     <div class="div"></div>
     <div class="sec">Sharpen</div>
     <div class="ctrl"><label>Strength <span id="sha-val">0</span></label><input type="range" id="sha" min="0" max="8" value="0" step="1" oninput="upd('sha-val',this.value,'');gen()"></div>
@@ -700,14 +838,15 @@ select:focus{border-color:#6c63ff}
 
 <script>
 // ── STATE ──
-var cStyle='gradient',cShape='circles',bMode='overlay',nmMode='mono',vigType='solid',imgFilter='none',colorMode='normal';
+var cStyle='gradient',cShape='circles',bMode='source-over',nmMode='mono',vigType='solid',imgFilter='none',colorMode='normal';
+var shColorMode='palette';// 'palette' or 'custom'
 var W=1080,H=1920,zoom_=1,xColors=[],uImg=null;
 var iPX=50,iPY=50,tPX=50,tPY=50;
 var tAlign='center',tFill='solid',tFW='400';
 var flips={},vigGradExtra=0,txtPlacing=false;
 var tFW2='400',tFill2='solid',tAlign2='center';
 var savedState=null,historyItems=[],_inHist=false;
-var SHAPES_LIST=['circles','triangles','hexagons','stars','diamonds','lines','dots','crosses','blob','rocket'];
+var SHAPES_LIST=['circles','stars','hearts','dots','lines','crosses','blob','ovals','arcs','triangles','hexagons','diamonds','squares','arrows','rocket'];
 
 var PAL={
   normal:[['#6c63ff','#f72585','#4cc9f0'],['#ff6b6b','#feca57','#48dbfb'],['#1a1a2e','#e94560','#0f3460'],['#2d6a4f','#74c69d','#d8f3dc'],['#f8961e','#f3722c','#264653'],['#b5179e','#7209b7','#480ca8'],['#06d6a0','#118ab2','#073b4c'],['#ff4d6d','#c77dff','#48cae4'],['#22223b','#4a4e69','#c9ada7'],['#03071e','#e85d04','#faa307'],['#10002b','#5a189a','#e0aaff'],['#ff0054','#ff5400','#ffbd00'],['#240046','#7b2ff7','#f72585'],['#0d1b2a','#1b4332','#52b788'],['#ff9f1c','#2ec4b6','#e71d36']],
@@ -718,6 +857,11 @@ var PAL={
 var STYLES=['gradient','geometric','mandala','waves','galaxy','neon','watercolor','terrain','plasma','circuit','warp','fractal','minimal'];
 
 // ── UTILS ──
+function acc(hdr){
+  hdr.classList.toggle('open');
+  var body=hdr.nextElementSibling;
+  if(body&&body.classList.contains('acc-body'))body.classList.toggle('closed');
+}
 function ST(id,btn){document.querySelectorAll('#tabs .tab').forEach(function(t){t.classList.remove('active')});btn.classList.add('active');document.querySelectorAll('.tp').forEach(function(p){p.classList.remove('active')});var p=document.getElementById('tp-'+id);if(p)p.classList.add('active')}
 function STm(id){document.querySelectorAll('.tp').forEach(function(p){p.classList.remove('active')});var p=document.getElementById('tp-'+id);if(p)p.classList.add('active')}
 function upd(id,v,s){var el=document.getElementById(id);if(el)el.textContent=v+s}
@@ -728,10 +872,17 @@ function hR(h){if(!h||h.length<7)return[0,0,0];return[parseInt(h.slice(1,3),16),
 function lp(a,b,t){return[Math.round(a[0]+(b[0]-a[0])*t),Math.round(a[1]+(b[1]-a[1])*t),Math.round(a[2]+(b[2]-a[2])*t)]}
 function hx(c){return'#'+c.map(function(v){return Math.max(0,Math.min(255,v)).toString(16).padStart(2,'0')}).join('')}
 function gCols(){
+  var styleOn=document.getElementById('style-on')?document.getElementById('style-on').checked:true;
   var base=[];
-  ['c1','c2','c3'].forEach(function(id){var el=document.getElementById(id);if(el&&el.dataset.hidden!=='1')base.push(hR(el.value))});
-  var extras=[];document.querySelectorAll('.cx-inp').forEach(function(el){extras.push(hR(el.value))});
+  ['c1','c2','c3'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&el.dataset.hidden!=='1'&&el.closest('.vg-item')&&el.closest('.vg-item').style.display!=='none')
+      base.push(hR(el.value));
+  });
+  var extras=[];
+  document.querySelectorAll('.cx-inp').forEach(function(el){extras.push(hR(el.value))});
   var all=base.concat(extras);
+  if(!styleOn)return all.length>0?all:[hR('#444444'),hR('#666666')];// neutral when style off
   return all.length>0?all:[hR('#6c63ff'),hR('#f72585')];
 }
 
@@ -741,21 +892,169 @@ function getCMPalette(){var p=PAL[colorMode]||PAL.normal;return p[Math.floor(Mat
 
 // ── SETTERS ──
 function tF(id){flips[id]=!flips[id];document.getElementById(id).classList.toggle('a',flips[id]);gen()}
-function setSt(b){document.querySelectorAll('.sb').forEach(function(x){x.classList.remove('a')});b.classList.add('a');cStyle=b.dataset.s;gen()}
 function setSh(b){document.querySelectorAll('.shb').forEach(function(x){x.classList.remove('a')});b.classList.add('a');cShape=b.dataset.sh;gen()}
-function setBM(b){document.querySelectorAll('.blb').forEach(function(x){x.classList.remove('a')});b.classList.add('a');bMode=b.dataset.bm;gen()}
+function setSt(b){document.querySelectorAll('.sb').forEach(function(x){x.classList.remove('a')});b.classList.add('a');cStyle=b.dataset.s;gen()}
+function toggleShColor(cb){
+  shColorMode=cb.checked?'custom':'palette';
+  var row=document.getElementById('sh-color-row');
+  if(row)row.style.display=cb.checked?'flex':'none';
+  gen();
+}
+function rndShapeColors(){
+  function fromH(h){
+    var s=0.6+Math.random()*0.4,l=0.45+Math.random()*0.3;
+    var c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;
+    var r=0,g=0,b=0;
+    if(h<60){r=c;g=x}else if(h<120){r=x;g=c}else if(h<180){g=c;b=x}else if(h<240){g=x;b=c}else if(h<300){r=x;b=c}else{r=c;b=x}
+    return'#'+[r,g,b].map(function(v){return Math.round((v+m)*255).toString(16).padStart(2,'0')}).join('');
+  }
+  var h1=Math.floor(Math.random()*360);
+  var h2=(h1+110+Math.floor(Math.random()*80))%360;
+  var h3=(h2+110+Math.floor(Math.random()*80))%360;
+  document.getElementById('sh-c1').value=fromH(h1);
+  document.getElementById('sh-c2').value=fromH(h2);
+  document.getElementById('sh-c3').value=fromH(h3);
+  var cb=document.getElementById('sh-color-on');
+  if(cb&&!cb.checked){cb.checked=true;shColorMode='custom';document.getElementById('sh-color-row').style.display='flex';}
+  gen();
+}
+var imgTintMode='none';// 'none' | 'mono' | 'multi'
+function setTintMode(b){
+  document.querySelectorAll('.fwb[data-tintmode]').forEach(function(x){x.classList.remove('a')});
+  b.classList.add('a');imgTintMode=b.dataset.tintmode;
+  document.getElementById('mono-ctrl').style.display=imgTintMode==='mono'?'block':'none';
+  document.getElementById('multi-ctrl').style.display=imgTintMode==='multi'?'block':'none';
+  // Also keep legacy mono-on in sync
+  var mon=document.getElementById('mono-on');if(mon)mon.checked=imgTintMode==='mono';
+  gen();
+}
+function rndMultiTint(){
+  // Generate 3 harmonious-but-surprising colors
+  function randHex(){
+    var schemes=['analogous','triadic','split'];
+    var scheme=schemes[Math.floor(Math.random()*schemes.length)];
+    var h=Math.floor(Math.random()*360);
+    var s=0.6+Math.random()*0.4;
+    var l=0.45+Math.random()*0.3;
+    var h2=scheme==='analogous'?h+30+Math.floor(Math.random()*60):scheme==='triadic'?h+120:h+150+Math.floor(Math.random()*60);
+    var h3=scheme==='analogous'?h-30-Math.floor(Math.random()*60):scheme==='triadic'?h+240:h+210+Math.floor(Math.random()*60);
+    function fromHSL(hh,ss,ll){
+      hh=((hh%360)+360)%360;ss=Math.max(0,Math.min(1,ss));ll=Math.max(0,Math.min(1,ll));
+      var c=(1-Math.abs(2*ll-1))*ss,x=c*(1-Math.abs((hh/60)%2-1)),m=ll-c/2;
+      var r=0,g=0,b=0;
+      if(hh<60){r=c;g=x}else if(hh<120){r=x;g=c}else if(hh<180){g=c;b=x}else if(hh<240){g=x;b=c}else if(hh<300){r=x;b=c}else{r=c;b=x}
+      return'#'+[r,g,b].map(function(v){return Math.round((v+m)*255).toString(16).padStart(2,'0')}).join('');
+    }
+    return[fromHSL(h,s,l),fromHSL(h2,s+Math.random()*.2-.1,l+Math.random()*.2-.1),fromHSL(h3,s+Math.random()*.2-.1,l+Math.random()*.2-.1)];
+  }
+  var cols=randHex();
+  document.getElementById('mc1').value=cols[0];
+  document.getElementById('mc2').value=cols[1];
+  document.getElementById('mc3').value=cols[2];
+  // Auto-set strength if still at 0
+  var strEl=document.getElementById('mc-str');
+  if(strEl&&parseInt(strEl.value)===0){strEl.value=60;upd('mc-str-val',60,'%')}
+  gen();
+}
+var imgCoMode='none';// color overlay mode
+var imgBcMode='multiply';// blend color mode
+function setBCM(b){document.querySelectorAll('.blb[data-bcm]').forEach(function(x){x.classList.remove('a')});b.classList.add('a');imgBcMode=b.dataset.bcm;gen()}
+function setCoMode(b){
+  document.querySelectorAll('.fwb[data-comode]').forEach(function(x){x.classList.remove('a')});
+  b.classList.add('a');imgCoMode=b.dataset.comode;
+  document.getElementById('co-mono-ctrl').style.display=imgCoMode==='mono'?'block':'none';
+  document.getElementById('co-multi-ctrl').style.display=imgCoMode==='multi'?'block':'none';
+  gen();
+}
+function rndColorOverlay(){
+  function randHex(){
+    var schemes=['analogous','triadic','split'];
+    var scheme=schemes[Math.floor(Math.random()*schemes.length)];
+    var h=Math.floor(Math.random()*360),s=0.6+Math.random()*0.4,l=0.45+Math.random()*0.3;
+    var h2=scheme==='analogous'?h+30+Math.floor(Math.random()*60):scheme==='triadic'?h+120:h+150+Math.floor(Math.random()*60);
+    var h3=scheme==='analogous'?h-30-Math.floor(Math.random()*60):scheme==='triadic'?h+240:h+210+Math.floor(Math.random()*60);
+    function fromHSL(hh,ss,ll){hh=((hh%360)+360)%360;ss=Math.max(0,Math.min(1,ss));ll=Math.max(0,Math.min(1,ll));var c=(1-Math.abs(2*ll-1))*ss,x=c*(1-Math.abs((hh/60)%2-1)),m=ll-c/2;var r=0,g=0,b=0;if(hh<60){r=c;g=x}else if(hh<120){r=x;g=c}else if(hh<180){g=c;b=x}else if(hh<240){g=x;b=c}else if(hh<300){r=x;b=c}else{r=c;b=x}return'#'+[r,g,b].map(function(v){return Math.round((v+m)*255).toString(16).padStart(2,'0')}).join('')}
+    return[fromHSL(h,s,l),fromHSL(h2,s+Math.random()*.2-.1,l+Math.random()*.2-.1),fromHSL(h3,s+Math.random()*.2-.1,l+Math.random()*.2-.1)];
+  }
+  var cols=randHex();
+  document.getElementById('co-c1').value=cols[0];
+  document.getElementById('co-c2').value=cols[1];
+  document.getElementById('co-c3').value=cols[2];
+  var strEl=document.getElementById('co-mstr');
+  if(strEl&&parseInt(strEl.value)===0){strEl.value=60;upd('co-mstr-val',60,'%')}
+  gen();
+}
+// Show/hide blend color controls
+document.addEventListener('DOMContentLoaded',function(){
+  var bcOn=document.getElementById('bc-on');
+  if(bcOn)bcOn.addEventListener('change',function(){
+    document.getElementById('bc-ctrl').style.display=bcOn.checked?'block':'none';gen();
+  });
+});
+function setImgPos(side){
+  if(side==='left'){iPX=10}
+  else if(side==='center'){iPX=50}
+  else if(side==='right'){iPX=90}
+  // Update pad dot visually
+  var pad=document.getElementById('ip');
+  var dot=document.getElementById('id2');
+  if(pad&&dot){
+    dot.style.left=iPX+'%';
+    dot.style.top=iPY+'%';
+  }
+  var lbl=document.getElementById('ip-lbl');
+  if(lbl)lbl.textContent='X: '+Math.round(iPX)+'%  Y: '+Math.round(iPY)+'%';
+  gen();
+}
+function setBM(b){document.querySelectorAll('.blb[data-bm]').forEach(function(x){x.classList.remove('a')});b.classList.add('a');bMode=b.dataset.bm;gen()}
+function onSubtitleToggle(cb){
+  if(cb.checked){
+    var tl2=document.getElementById('tl2');
+    if(tl2&&!tl2.value.trim())tl2.value='Your subtitle here';
+  }
+  // show/hide handled by toggleEffectCtrl called from onchange
+  gen();
+}
 function setTA(b){document.querySelectorAll('.tab2[data-ta]').forEach(function(x){x.classList.remove('a')});b.classList.add('a');tAlign=b.dataset.ta;gen()}
 function setTA2(b){document.querySelectorAll('.tab2[data-ta2]').forEach(function(x){x.classList.remove('a')});b.classList.add('a');tAlign2=b.dataset.ta2;gen()}
 function setFW(b){document.querySelectorAll('.fwb[data-w]').forEach(function(x){x.classList.remove('a')});b.classList.add('a');tFW=b.dataset.w;gen()}
 function setFill(b){document.querySelectorAll('.fwb[data-fill]').forEach(function(x){x.classList.remove('a')});b.classList.add('a');tFill=b.dataset.fill;gen()}
 function setNM(b){document.querySelectorAll('.nmb').forEach(function(x){x.classList.remove('a')});b.classList.add('a');nmMode=b.dataset.nm;gen()}
 function setFilt(b){document.querySelectorAll('.filtb').forEach(function(x){x.classList.remove('a')});b.classList.add('a');imgFilter=b.dataset.f;gen()}
+function toggleEffectCtrl(id,cb){
+  var el=document.getElementById(id);
+  if(el)el.style.display=cb.checked?'block':'none';
+}
 function setVig(b){document.querySelectorAll('.vigb').forEach(function(x){x.classList.remove('a')});b.classList.add('a');vigType=b.dataset.vt;document.getElementById('vig-solid-ctrl').style.display=vigType==='solid'?'block':'none';document.getElementById('vig-grad-ctrl').style.display=vigType==='gradient'?'block':'none';gen()}
 function setRes(b){document.querySelectorAll('.resbtn').forEach(function(x){x.classList.remove('a')});b.classList.add('a');W=parseInt(b.dataset.w);H=parseInt(b.dataset.h);document.getElementById('info').textContent=W+'×'+H+' px';zoom_=1;document.getElementById('ci')||null;gen()}
 
 // ── RANDOM ──
 function rndStyle(){var s=STYLES[Math.floor(Math.random()*STYLES.length)];document.querySelectorAll('.sb').forEach(function(b){b.classList.toggle('a',b.dataset.s===s)});cStyle=s;rndColors()}
-function rndColors(){var p=getCMPalette();document.getElementById('c1').value=p[0];document.getElementById('c2').value=p[1];document.getElementById('c3').value=p[2];gen()}
+function rndColors(){
+  // Generate truly random colors across the spectrum — not just from PAL
+  var useRandom=Math.random()>0.3;// 70% truly random, 30% from palette
+  if(useRandom){
+    function rndHSL(hBase,hRange,sMin,lMin){
+      var h=((hBase!==undefined?hBase:Math.floor(Math.random()*360))+Math.floor(Math.random()*(hRange||60))-Math.floor((hRange||60)/2)+360)%360;
+      var s=(sMin||0.5)+Math.random()*0.5;var l=(lMin||0.35)+Math.random()*0.35;
+      var c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;
+      var r=0,g=0,b=0;
+      if(h<60){r=c;g=x}else if(h<120){r=x;g=c}else if(h<180){g=c;b=x}else if(h<240){g=x;b=c}else if(h<300){r=x;b=c}else{r=c;b=x}
+      return'#'+[r,g,b].map(function(v){return Math.round((v+m)*255).toString(16).padStart(2,'0')}).join('');
+    }
+    var h1=Math.floor(Math.random()*360);
+    var schemes=['analogous','triadic','split','tetradic','complementary'];
+    var scheme=schemes[Math.floor(Math.random()*schemes.length)];
+    var h2=scheme==='analogous'?h1+30+Math.floor(Math.random()*60):scheme==='triadic'?h1+120:scheme==='split'?h1+150+Math.floor(Math.random()*60):scheme==='tetradic'?h1+90:h1+180;
+    var h3=scheme==='triadic'?h1+240:scheme==='tetradic'?h1+270:h1+h2/2;
+    var c1=rndHSL(h1);var c2=rndHSL(h2);var c3=rndHSL(h3);
+    document.getElementById('c1').value=c1;document.getElementById('c2').value=c2;document.getElementById('c3').value=c3;
+  } else {
+    var p=getCMPalette();
+    document.getElementById('c1').value=p[0];document.getElementById('c2').value=p[1];document.getElementById('c3').value=p[2];
+  }
+  gen();
+}
 function rndTitleGrad(){
   var cv=document.getElementById('cv');
   var ctx=cv.getContext('2d');
@@ -843,18 +1142,34 @@ function rndShape(){var s=SHAPES_LIST[Math.floor(Math.random()*SHAPES_LIST.lengt
 // ── EXTRA COLORS (with delete) ──
 function addColor(){
   var row=document.getElementById('color-row'),add=document.getElementById('acb');
-  var extras=row.querySelectorAll('.vg-item .cx-inp');
+  // First restore any hidden base colors (c1,c2,c3)
+  var restored=false;
+  ['c1','c2','c3'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&el.dataset.hidden==='1'){
+      el.dataset.hidden='0';
+      var item=el.closest('.vg-item');if(item)item.style.display='';
+      restored=true;return;
+    }
+  });
+  if(restored){
+    var total=row.querySelectorAll('.vg-item:not([style*="none"])').length;
+    if(total<8)add.style.display='flex';
+    gen();return;
+  }
+  var extras=row.querySelectorAll('.cx-inp');
   if(extras.length>=5)return;
-  var defs=['#ff9f1c','#2ec4b6','#e71d36','#7b2ff7','#06d6a0'];var nh=defs[extras.length%5];
+  var defs=['#ff9f1c','#2ec4b6','#e71d36','#7b2ff7','#06d6a0'];
+  var nh=defs[extras.length%5];
   var item=document.createElement('div');item.className='vg-item';
   var sw=document.createElement('button');sw.className='csw';
   var inp=document.createElement('input');inp.type='color';inp.value=nh;inp.className='cx-inp';
   inp.oninput=function(){gen()};sw.appendChild(inp);
   var del=document.createElement('button');del.className='cx-del';del.textContent='×';
   del.onclick=function(){
-    var total=row.querySelectorAll('.vg-item').length;
-    if(total<=2)return;// keep min 2 colors total
-    item.remove();if(row.querySelectorAll('.cx-inp').length<5)add.style.display='flex';gen()
+    var total=row.querySelectorAll('.vg-item:not([style*="none"])').length;
+    if(total<=2)return;
+    item.remove();if(row.querySelectorAll('.cx-inp').length<5)add.style.display='flex';gen();
   };
   item.appendChild(sw);item.appendChild(del);
   row.insertBefore(item,add);
@@ -904,7 +1219,19 @@ function getVigColors(){var out=[gs('vg1'),gs('vg2'),gs('vg3')];document.querySe
 function dropImg(e){e.preventDefault();document.getElementById('dz').classList.remove('drag');var f=e.dataTransfer.files[0];if(f)processImg(f)}
 function loadImg(inp){processImg(inp.files[0])}
 function processImg(f){if(!f)return;if(f.size>5*1024*1024){alert('Max 5 MB.');return}var r=new FileReader();r.onload=function(e){var img=new Image();img.onload=function(){uImg=img;document.getElementById('imgc').style.display='block';document.getElementById('img-on').checked=true;document.getElementById('dz').classList.add('hi');document.getElementById('dl2').textContent='✓ '+f.name.slice(0,24);gen()};img.src=e.target.result};r.readAsDataURL(f)}
-function clearImg(){uImg=null;document.getElementById('imgc').style.display='none';document.getElementById('img-on').checked=false;document.getElementById('dz').classList.remove('hi');document.getElementById('dl2').textContent='+ Upload or drag & drop image (max 5 MB)';document.getElementById('ii').value='';gen()}
+function clearImg(){
+  uImg=null;
+  document.getElementById('imgc').style.display='none';
+  document.getElementById('img-on').checked=false;
+  document.getElementById('dz').classList.remove('hi');
+  document.getElementById('dl2').textContent='+ Upload or drag & drop image (max 5 MB)';
+  document.getElementById('ii').value='';
+  // Clear search thumbnails selected state
+  document.querySelectorAll('.usp-thumb.selected,.usp-thumb').forEach(function(t){t.classList.remove('selected')});
+  var pexStatus=document.getElementById('pex-status');if(pexStatus)pexStatus.textContent='';
+  var uspStatus=document.getElementById('usp-status');if(uspStatus)uspStatus.textContent='';
+  gen();
+}
 
 // ── TEXT PLACEMENT ON CANVAS ──
 function toggleTxtPlace(){txtPlacing=!txtPlacing;var ov=document.getElementById('txt-overlay');var btn=document.getElementById('txt-place-btn');var hint=document.getElementById('txt-hint');if(txtPlacing){ov.classList.add('active');btn.style.background='#6c63ff';btn.style.color='#fff';btn.textContent='✔ Click canvas to place text';hint.textContent='Click on preview to set text position'}else{ov.classList.remove('active');btn.style.background='#6c63ff22';btn.style.color='#6c63ff';btn.textContent='📍 Click canvas to place';hint.textContent='';document.getElementById('txt-cursor').style.display='none'}}
@@ -1029,17 +1356,26 @@ function rStyle(ctx,w,h,style,cols,rand,cx,dn){
 }
 
 // ── SHAPES ──
-function drawShape(ctx,shape,x,y,sz,rand){
+function drawShape(ctx,shape,x,y,sz,rand,distort){
+  distort=distort||0;
+  // Deform helper: adds random offset to a point based on distort level
+  function dx(v){return v+distort*(rand()-.5)*sz*1.2}
+  function dy(v){return v+distort*(rand()-.5)*sz*1.2}
   ctx.beginPath();
   if(shape==='circles')ctx.arc(x,y,sz,0,Math.PI*2);
-  else if(shape==='triangles'){ctx.moveTo(x,y-sz);ctx.lineTo(x+sz*.87,y+sz*.5);ctx.lineTo(x-sz*.87,y+sz*.5);ctx.closePath()}
+  else if(shape==='triangles'){ctx.moveTo(dx(x),dy(y-sz));ctx.lineTo(dx(x+sz*.87),dy(y+sz*.5));ctx.lineTo(dx(x-sz*.87),dy(y+sz*.5));ctx.closePath()}
   else if(shape==='hexagons'){for(var i=0;i<6;i++){var a=i*Math.PI/3;i===0?ctx.moveTo(x+sz*Math.cos(a),y+sz*Math.sin(a)):ctx.lineTo(x+sz*Math.cos(a),y+sz*Math.sin(a))}ctx.closePath()}
   else if(shape==='stars'){for(var i=0;i<10;i++){var a=i*Math.PI/5-Math.PI/2;var r2=i%2===0?sz:sz*.4;i===0?ctx.moveTo(x+r2*Math.cos(a),y+r2*Math.sin(a)):ctx.lineTo(x+r2*Math.cos(a),y+r2*Math.sin(a))}ctx.closePath()}
-  else if(shape==='diamonds'){ctx.moveTo(x,y-sz);ctx.lineTo(x+sz*.6,y);ctx.lineTo(x,y+sz);ctx.lineTo(x-sz*.6,y);ctx.closePath()}
+  else if(shape==='diamonds'){ctx.moveTo(dx(x),dy(y-sz));ctx.lineTo(dx(x+sz*.6),dy(y));ctx.lineTo(dx(x),dy(y+sz));ctx.lineTo(dx(x-sz*.6),dy(y));ctx.closePath()}
   else if(shape==='lines'){ctx.moveTo(x-sz,y);ctx.lineTo(x+sz,y)}
   else if(shape==='dots')ctx.arc(x,y,sz*.22,0,Math.PI*2);
   else if(shape==='crosses'){ctx.moveTo(x-sz,y);ctx.lineTo(x+sz,y);ctx.moveTo(x,y-sz);ctx.lineTo(x,y+sz)}
   else if(shape==='blob'){var pts=14,s2=rand()*100;for(var i=0;i<=pts;i++){var a=i/pts*Math.PI*2;var r2=sz*(0.65+0.35*Math.sin(a*3+s2)+0.2*Math.sin(a*5+s2*1.3));i===0?ctx.moveTo(x+r2*Math.cos(a),y+r2*Math.sin(a)):ctx.lineTo(x+r2*Math.cos(a),y+r2*Math.sin(a))}ctx.closePath()}
+  else if(shape==='hearts'){var s=sz;ctx.moveTo(x,y+s*.3);ctx.bezierCurveTo(x,y-s*.5,x-s,y-s*.5,x-s,y);ctx.bezierCurveTo(x-s,y+s*.55,x,y+s*.9,x,y+s*.9);ctx.bezierCurveTo(x,y+s*.9,x+s,y+s*.55,x+s,y);ctx.bezierCurveTo(x+s,y-s*.5,x,y-s*.5,x,y+s*.3);ctx.closePath()}
+  else if(shape==='ovals'){ctx.ellipse(x,y,sz,sz*.55,0,0,Math.PI*2)}
+  else if(shape==='arcs'){ctx.arc(x,y,sz,0,Math.PI)}
+  else if(shape==='squares'){var h=sz*.8;ctx.moveTo(dx(x-h),dy(y-h));ctx.lineTo(dx(x+h),dy(y-h));ctx.lineTo(dx(x+h),dy(y+h));ctx.lineTo(dx(x-h),dy(y+h));ctx.closePath()}
+  else if(shape==='arrows'){ctx.moveTo(x-sz,y);ctx.lineTo(x+sz*.4,y);ctx.moveTo(x,y-sz*.5);ctx.lineTo(x+sz*.8,y);ctx.lineTo(x,y+sz*.5)}
   else if(shape==='rocket'){var s=sz;ctx.moveTo(x,y-s);ctx.quadraticCurveTo(x+s*.35,y-s*.5,x+s*.35,y+s*.1);ctx.lineTo(x+s*.55,y+s*.5);ctx.lineTo(x+s*.55,y+s);ctx.lineTo(x+s*.2,y+s*.7);ctx.lineTo(x,y+s*.85);ctx.lineTo(x-s*.2,y+s*.7);ctx.lineTo(x-s*.55,y+s);ctx.lineTo(x-s*.55,y+s*.5);ctx.quadraticCurveTo(x-s*.35,y-s*.5,x,y-s);ctx.closePath()}
 }
 
@@ -1090,9 +1426,19 @@ function drawText(ctx,w,h){
   var maxSubW=w-margin*2;
   ctx.save();ctx.translate(ax,ay);ctx.rotate(rot);
   ctx.textBaseline='middle';
-  // Measure title
+  // Word-wrap title
   ctx.font=tFW+' '+fs+'px '+font;
-  var m1=l1?ctx.measureText(l1):null;
+  var titleLines=[];
+  if(l1){
+    var twords=l1.split(/\s+/);
+    var tcur='';
+    twords.forEach(function(word){
+      var test=tcur?tcur+' '+word:word;
+      if(ctx.measureText(test).width<=maxSubW){tcur=test}
+      else{if(tcur)titleLines.push(tcur);tcur=word}
+    });
+    if(tcur)titleLines.push(tcur);
+  }
   // Word-wrap subtitle
   var subLines=[];
   if(l2){
@@ -1109,29 +1455,30 @@ function drawText(ctx,w,h){
       if(cur)subLines.push(cur);
     });
   }
-  var mW=Math.max(m1?m1.width:0,maxSubW)||fs*4;
+  var lineH1=fs+Math.round(fs*0.2);
+  var mW=maxSubW||fs*4;
   var lineH2=fs2+Math.round(fs2*0.3);
   var subTotalH=subLines.length>0?subLines.length*lineH2:0;
-  var titleH=l1?fs:0;
+  var titleTotalH=titleLines.length>0?titleLines.length*lineH1:0;
   var gapH=(l1&&l2)?gap:0;
-  var totalH=titleH+gapH+subTotalH;
-  var y1=-totalH/2+(l1?fs/2:0);
-  var y2sub=l1?(y1+fs/2+gapH+fs2/2):(-subTotalH/2+fs2/2);
+  var totalH=titleTotalH+gapH+subTotalH;
+  var y1=-totalH/2+(titleLines.length>0?fs/2:0);
+  var y2sub=l1?(y1+(titleLines.length-1)*lineH1+fs/2+gapH+fs2/2):(-subTotalH/2+fs2/2);
   function mFillT(y){if(tFill==='solid')return c1;var g;if(tFill==='gradient-h')g=ctx.createLinearGradient(-mW/2,0,mW/2,0);else if(tFill==='gradient-v')g=ctx.createLinearGradient(0,y-fs*.5,0,y+fs*.5);else g=ctx.createLinearGradient(-mW/2,y-fs*.5,mW/2,y+fs*.5);g.addColorStop(0,c1);g.addColorStop(1,c2);return g}
   function mFillS(y){if(tFill2==='solid')return c1s;var g;if(tFill2==='gradient-h')g=ctx.createLinearGradient(-maxSubW/2,0,maxSubW/2,0);else if(tFill2==='gradient-v')g=ctx.createLinearGradient(0,y-fs2*.5,0,y+fs2*.5);else g=ctx.createLinearGradient(-maxSubW/2,y-fs2*.5,maxSubW/2,y+fs2*.5);g.addColorStop(0,c1s);g.addColorStop(1,c2s);return g}
   function setShadow(){if(sb>0){ctx.shadowColor='rgba('+sc[0]+','+sc[1]+','+sc[2]+','+sop+')';ctx.shadowBlur=sb*w*0.004;ctx.shadowOffsetX=sb*w*0.002;ctx.shadowOffsetY=sb*w*0.002}}
   function clearShadow(){ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetX=0;ctx.shadowOffsetY=0}
-  // X anchor for title based on alignment (relative to translated origin = tPX position)
-  // left = start from -mW/2, center = 0, right = start from +mW/2
+  // X anchor for title based on alignment
   var txX = tAlign==='left' ? -mW/2 : tAlign==='right' ? mW/2 : 0;
-  // X anchor for subtitle block — always anchored to the subtitle max width
   var txX2 = tAlign2==='left' ? -maxSubW/2 : tAlign2==='right' ? maxSubW/2 : 0;
-  // Draw title (own alignment)
-  if(l1){
+  // Draw title lines
+  if(titleLines.length>0){
     ctx.globalAlpha=alpha;ctx.textAlign=tAlign;ctx.font=tFW+' '+fs+'px '+font;
-    setShadow();
-    if(ol>0){ctx.strokeStyle='rgba(0,0,0,.9)';ctx.lineWidth=ol*w*.002;ctx.lineJoin='round';ctx.strokeText(l1,txX,y1)}
-    ctx.fillStyle=mFillT(y1);ctx.fillText(l1,txX,y1);clearShadow();
+    titleLines.forEach(function(line,i){
+      var y=y1+i*lineH1;setShadow();
+      if(ol>0){ctx.strokeStyle='rgba(0,0,0,.9)';ctx.lineWidth=ol*w*.002;ctx.lineJoin='round';ctx.strokeText(line,txX,y)}
+      ctx.fillStyle=mFillT(y);ctx.fillText(line,txX,y);clearShadow();
+    });
   }
   // Draw subtitle lines (own alignment — each line anchored to same x edge)
   if(subLines.length>0){
@@ -1195,12 +1542,12 @@ function renderTo(canvas,w,h){
   var dn=parseInt(document.getElementById('dn').value);
   var rand=sR(seed*137+cx*31+dn*7);
   var cols=gCols();
-  var avg=lp(cols[0],cols[1],.5);
+  var styleEnabled=document.getElementById('style-on')?document.getElementById('style-on').checked:true;
+  var avg=styleEnabled?lp(cols[0],cols[1],.5):[30,30,35];// neutral dark when style off
   ctx.fillStyle=hx(avg);ctx.fillRect(0,0,w,h);
   // Style layer
   var off=document.createElement('canvas');off.width=w;off.height=h;
   var octx=off.getContext('2d');octx.fillStyle=hx(avg);octx.fillRect(0,0,w,h);
-  var styleEnabled=document.getElementById('style-on')?document.getElementById('style-on').checked:true;
   if(styleEnabled)rStyle(octx,w,h,cStyle,cols,rand,cx,dn);
   var uS=gv('st-sc')/100,rot=gv('st-rt')*Math.PI/180;
   var cov=Math.abs(Math.cos(rot))+Math.abs(Math.sin(rot));
@@ -1217,31 +1564,120 @@ function renderTo(canvas,w,h){
     var bs=Math.max(w/iw,h/ih);var dw=iw*bs*isc,dh=ih*bs*isc;
     var aX=(iPX/100)*w,aY=(iPY/100)*h;
     var tmp2=document.createElement('canvas');tmp2.width=w;tmp2.height=h;var tc2=tmp2.getContext('2d');
-    // Process image: filter + grading + monochrome
-    var tg=document.createElement('canvas');tg.width=iw;tg.height=ih;var tgc=tg.getContext('2d');tgc.drawImage(uImg,0,0);
+    // Process image: filter + grading + tint + adjustments
+    var iblur=gv('iblur')||0;
+    var ibri=gv('ibri')||0;
+    var icon=gv('icon')||0;
+    var ipix=gv('ipix')||0;
+    var tg=document.createElement('canvas');tg.width=iw;tg.height=ih;var tgc=tg.getContext('2d');
+    // Apply blur via CSS filter before drawing
+    if(iblur>0){tgc.filter='blur('+iblur+'px)'}
+    tgc.drawImage(uImg,0,0);tgc.filter='none';
+    // Pixelate
+    if(ipix>1){
+      var psize=Math.max(2,ipix);
+      var pw=Math.max(1,Math.floor(iw/psize));
+      var ph=Math.max(1,Math.floor(ih/psize));
+      var ptmp=document.createElement('canvas');ptmp.width=pw;ptmp.height=ph;
+      var ptc=ptmp.getContext('2d');
+      ptc.drawImage(tg,0,0,pw,ph);
+      tgc.imageSmoothingEnabled=false;
+      tgc.clearRect(0,0,iw,ih);
+      tgc.drawImage(ptmp,0,0,iw,ih);
+      tgc.imageSmoothingEnabled=true;
+    }
     var id3=tgc.getImageData(0,0,iw,ih);var dd=id3.data;
     // Apply filter
     if(imgFilter!=='none')applyFilter(dd,imgFilter);
+    // Apply brightness & contrast
+    if(ibri!==0||icon!==0){
+      var bFactor=ibri*2.55;
+      var cFactor=icon>0?(259*(icon+255))/(255*(259-icon)):(259*(icon+255))/(255*(259-icon));
+      for(var i=0;i<dd.length;i+=4){
+        dd[i]=Math.min(255,Math.max(0,cFactor*(dd[i]-128)+128+bFactor));
+        dd[i+1]=Math.min(255,Math.max(0,cFactor*(dd[i+1]-128)+128+bFactor));
+        dd[i+2]=Math.min(255,Math.max(0,cFactor*(dd[i+2]-128)+128+bFactor));
+      }
+    }
     // Apply grading
     if(gr>0){for(var i=0;i<dd.length;i+=4){var lum=(dd[i]*.299+dd[i+1]*.587+dd[i+2]*.114)/255;var pi=Math.min(cols.length-1,Math.floor(lum*cols.length));var pc=cols[pi];dd[i]=Math.round(dd[i]*(1-gr)+pc[0]*gr);dd[i+1]=Math.round(dd[i+1]*(1-gr)+pc[1]*gr);dd[i+2]=Math.round(dd[i+2]*(1-gr)+pc[2]*gr)}}
     // Apply monochrome tint
-    if(document.getElementById('mono-on').checked){var mc=hR(gs('mono-color'));var mStr=gv('mono-str')/100;for(var i=0;i<dd.length;i+=4){var lum2=(dd[i]*.299+dd[i+1]*.587+dd[i+2]*.114)/255;dd[i]=Math.round(dd[i]*(1-mStr)+mc[0]*lum2*mStr);dd[i+1]=Math.round(dd[i+1]*(1-mStr)+mc[1]*lum2*mStr);dd[i+2]=Math.round(dd[i+2]*(1-mStr)+mc[2]*lum2*mStr)}}
+    if(imgTintMode==='mono'){
+      var mc=hR(gs('mono-color'));var mStr=gv('mono-str')/100;
+      for(var i=0;i<dd.length;i+=4){var lum2=(dd[i]*.299+dd[i+1]*.587+dd[i+2]*.114)/255;dd[i]=Math.round(dd[i]*(1-mStr)+mc[0]*lum2*mStr);dd[i+1]=Math.round(dd[i+1]*(1-mStr)+mc[1]*lum2*mStr);dd[i+2]=Math.round(dd[i+2]*(1-mStr)+mc[2]*lum2*mStr)}
+    }
+    // Apply multicolor tint
+    if(imgTintMode==='multi'){
+      var mStr2=gv('mc-str')/100;
+      var mc1=hR(document.getElementById('mc1').value);
+      var mc2c=hR(document.getElementById('mc2').value);
+      var mc3=hR(document.getElementById('mc3').value);
+      var mcols=[mc1,mc2c,mc3];
+      for(var i=0;i<dd.length;i+=4){
+        var lum3=(dd[i]*.299+dd[i+1]*.587+dd[i+2]*.114)/255;
+        var t=lum3*(mcols.length-1);
+        var ci0=Math.min(mcols.length-2,Math.floor(t));
+        var frac=t-ci0;
+        var ca=mcols[ci0],cb=mcols[ci0+1];
+        var tr=Math.round(ca[0]*(1-frac)+cb[0]*frac);
+        var tg2=Math.round(ca[1]*(1-frac)+cb[1]*frac);
+        var tb=Math.round(ca[2]*(1-frac)+cb[2]*frac);
+        dd[i]=Math.round(dd[i]*(1-mStr2)+tr*mStr2);
+        dd[i+1]=Math.round(dd[i+1]*(1-mStr2)+tg2*mStr2);
+        dd[i+2]=Math.round(dd[i+2]*(1-mStr2)+tb*mStr2);
+      }
+    }
     tgc.putImageData(id3,0,0);
     tc2.save();tc2.translate(aX,aY);tc2.rotate(irt);tc2.transform(1,sky2,skx,1,0,0);tc2.scale(fxI,fyI);tc2.drawImage(tg,-dw*(iPX/100),-dh*(iPY/100),dw,dh);tc2.restore();
+    // Apply Blend Color on top of image
+    var bcOnEl=document.getElementById('bc-on');
+    if(bcOnEl&&bcOnEl.checked){
+      var bcCol=document.getElementById('bc-color').value;
+      var bcAlpha=gv('bc-alpha')/100;
+      tc2.save();tc2.globalCompositeOperation=imgBcMode;tc2.globalAlpha=bcAlpha;tc2.fillStyle=bcCol;tc2.fillRect(0,0,w,h);tc2.restore();
+    }
+    // Apply Color Overlay
+    if(imgCoMode==='mono'){
+      var coStr=gv('co-str')/100;
+      if(coStr>0){
+        var coCol=document.getElementById('co-color').value;
+        tc2.save();tc2.globalCompositeOperation='source-atop';tc2.globalAlpha=coStr;tc2.fillStyle=coCol;tc2.fillRect(0,0,w,h);tc2.restore();
+      }
+    } else if(imgCoMode==='multi'){
+      var coMStr=gv('co-mstr')/100;
+      if(coMStr>0){
+        var cc1=document.getElementById('co-c1').value;
+        var cc2=document.getElementById('co-c2').value;
+        var cc3=document.getElementById('co-c3').value;
+        var grd=tc2.createLinearGradient(0,0,w,h);
+        grd.addColorStop(0,cc1);grd.addColorStop(0.5,cc2);grd.addColorStop(1,cc3);
+        tc2.save();tc2.globalCompositeOperation='source-atop';tc2.globalAlpha=coMStr;tc2.fillStyle=grd;tc2.fillRect(0,0,w,h);tc2.restore();
+      }
+    }
     ctx.globalCompositeOperation=bMode;ctx.globalAlpha=iop;ctx.drawImage(tmp2,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
   }
   // Shapes layer
   if(document.getElementById('sh-on').checked){
     var alpha=gv('so')/100,ssize=gv('ss'),shR=gv('shr')*Math.PI/180,shD=gv('shd')*Math.PI/180;
     var spacing=w*(0.025+0.06*(11-gv('shs'))/10),sz=w*(0.005+ssize*0.005);
-    var isLine=['lines','crosses'].includes(cShape);
+    var isLine=['lines','crosses','arcs','arrows'].includes(cShape);
     ctx.save();ctx.translate(w/2,h/2);ctx.rotate(shD);ctx.translate(-w/2,-h/2);
     var ext=Math.max(w,h)*1.5;
+    // Shape color: use C1/C2/C3 if custom switch on
+    var shC1El=document.getElementById('sh-c1');
+    var shC2El=document.getElementById('sh-c2');
+    var shC3El=document.getElementById('sh-c3');
+    var shCustomCols=shColorMode==='custom'&&shC1El&&shC2El?[hR(shC1El.value),hR(shC2El.value),shC3El?hR(shC3El.value):hR(shC1El.value)]:null;
+    // Distort factor
+    var distort=(gv('sh-dist')||0)/100;
     for(var row=-ext;row<h+ext;row+=spacing){for(var col=-ext;col<w+ext;col+=spacing){
       var x=col+(row%2)*spacing*.5+(rand()-.5)*spacing*.2;var y=row+(rand()-.5)*spacing*.2;
-      var c=cols[Math.floor(rand()*cols.length)];
+      var ci=Math.floor(rand()*3);
+      var c=shCustomCols?shCustomCols[ci%shCustomCols.length]:cols[Math.floor(rand()*cols.length)];
+      // Apply distort to size
+      var dSz=sz*(1+distort*(rand()-.3)*2);
       ctx.strokeStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+alpha+')';ctx.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+alpha+')';ctx.lineWidth=Math.max(1,sz*.18);
-      ctx.save();ctx.translate(x,y);ctx.rotate(shR);drawShape(ctx,cShape,0,0,sz,rand);isLine||cShape==='crosses'?ctx.stroke():rand()>.45?ctx.fill():ctx.stroke();ctx.restore();
+      ctx.save();ctx.translate(x,y);ctx.rotate(shR+distort*(rand()-.5)*Math.PI);drawShape(ctx,cShape,0,0,dSz,rand,distort);isLine||cShape==='crosses'||cShape==='arcs'||cShape==='arrows'?ctx.stroke():rand()>.45?ctx.fill():ctx.stroke();ctx.restore();
     }}ctx.restore();
   }
   drawText(ctx,w,h);
@@ -1252,6 +1688,10 @@ function renderTo(canvas,w,h){
 
 // ── GEN (main) ──
 function gen(){
+  // Update title char counter
+  var tl1el=document.getElementById('tl1');
+  var cntEl=document.getElementById('tl1-count');
+  if(tl1el&&cntEl)cntEl.textContent=tl1el.value.length;
   var ps=gPS();var cv=document.getElementById('cv');
   cv.style.width=ps[0]+'px';cv.style.height=ps[1]+'px';
   // Sync overlay div size
@@ -1320,16 +1760,29 @@ function resetAll(){
   clearImg();
   document.getElementById('img-on').checked=false;
   document.getElementById('io').value=85;upd('io-val',85,'%');
-  document.getElementById('ig').value=50;upd('ig-val',50,'%');
+  document.getElementById('ig').value=0;upd('ig-val',0,'%');
   document.getElementById('isc').value=100;upd('isc-val',100,'%');
   document.getElementById('irt').value=0;upd('irt-val',0,'°');
   document.getElementById('iskx').value=0;upd('iskx-val',0,'°');
   document.getElementById('isky').value=0;upd('isky-val',0,'°');
-  document.getElementById('mono-on').checked=false;
-  document.getElementById('mono-str').value=70;upd('mono-str-val',70,'%');
-  document.getElementById('mono-color').value='#6c63ff';
+  document.getElementById('ibri').value=0;upd('ibri-val',0,'');
+  document.getElementById('icon').value=0;upd('icon-val',0,'');
+  document.getElementById('iblur').value=0;upd('iblur-val',0,'px');
+  document.getElementById('ipix').value=0;upd('ipix-val',0,'');
+  // Reset blend color
+  var bcOnEl=document.getElementById('bc-on');if(bcOnEl)bcOnEl.checked=false;
+  var bcCtrl=document.getElementById('bc-ctrl');if(bcCtrl)bcCtrl.style.display='none';
+  document.getElementById('bc-alpha').value=50;upd('bc-alpha-val',50,'%');
+  imgBcMode='multiply';document.querySelectorAll('.blb[data-bcm]').forEach(function(b){b.classList.toggle('a',b.dataset.bcm==='multiply')});
+  // Reset color overlay
+  imgCoMode='none';
+  document.querySelectorAll('.fwb[data-comode]').forEach(function(b){b.classList.toggle('a',b.dataset.comode==='none')});
+  var coMono=document.getElementById('co-mono-ctrl');if(coMono)coMono.style.display='none';
+  var coMulti=document.getElementById('co-multi-ctrl');if(coMulti)coMulti.style.display='none';
+  document.getElementById('co-str').value=0;upd('co-str-val',0,'%');
+  document.getElementById('co-mstr').value=0;upd('co-mstr-val',0,'%');
   imgFilter='none';document.querySelectorAll('.filtb').forEach(function(b){b.classList.toggle('a',b.dataset.f==='none')});
-  bMode='overlay';document.querySelectorAll('.blb').forEach(function(b){b.classList.toggle('a',b.dataset.bm==='overlay')});
+  bMode='source-over';document.querySelectorAll('.blb[data-bm]').forEach(function(b){b.classList.toggle('a',b.dataset.bm==='source-over')});
   iPX=50;iPY=50;
   var id2=document.getElementById('id2');if(id2){id2.style.left='50%';id2.style.top='50%'}
   document.getElementById('ip-lbl').textContent='X: 50%  Y: 50%';
@@ -1424,7 +1877,9 @@ function applySnap(s){
   document.getElementById('shs').value=s.shs||5;upd('shs-val',s.shs||5,'');
   document.getElementById('shd').value=s.shd||0;upd('shd-val',s.shd||0,'°');
   document.getElementById('tx-on').checked=s.txOn;
+  var titleCtrl=document.getElementById('title-ctrl');if(titleCtrl)titleCtrl.style.display=s.txOn?'block':'none';
   var tx2el=document.getElementById('tx2-on');if(tx2el)tx2el.checked=s.tx2On||false;
+  var subtitleCtrl=document.getElementById('subtitle-ctrl');if(subtitleCtrl)subtitleCtrl.style.display=(s.tx2On)?'block':'none';
   document.getElementById('tl1').value=s.tl1||'';var tl2el=document.getElementById('tl2');if(tl2el)tl2el.value=s.tl2||'';
   tPX=s.tPX||50;tPY=s.tPY||50;
   var td=document.getElementById('td');if(td){td.style.left=tPX+'%';td.style.top=tPY+'%'}
@@ -1442,10 +1897,12 @@ function applySnap(s){
   if(document.getElementById('top2')){document.getElementById('top2').value=s.top2||100;upd('top2-val',s.top2||100,'%')}
   if(document.getElementById('tf2')&&s.tf2)document.getElementById('tf2').value=s.tf2;
   document.getElementById('vig-on').checked=s.vigOn;
+  var vigCtrl=document.getElementById('vig-ctrl');if(vigCtrl)vigCtrl.style.display=s.vigOn?'block':'none';
   document.getElementById('vi').value=s.vi||80;upd('vi-val',s.vi||80,'%');
   document.getElementById('vs').value=s.vs||55;upd('vs-val',s.vs||55,'%');
   if(document.getElementById('vop')){document.getElementById('vop').value=s.vop||100;upd('vop-val',s.vop||100,'%')}
   document.getElementById('noise-on').checked=s.noiseOn;
+  var noiseCtrl=document.getElementById('noise-ctrl');if(noiseCtrl)noiseCtrl.style.display=s.noiseOn?'block':'none';
   document.getElementById('na').value=s.na||30;upd('na-val',s.na||30,'%');
   document.getElementById('nop').value=s.nop||50;upd('nop-val',s.nop||50,'%');
   document.getElementById('sha').value=s.sha||0;upd('sha-val',s.sha||0,'');
@@ -1491,30 +1948,213 @@ function surpriseMe(){
   var bar=document.getElementById('surprise-bar');
   bar.innerHTML='<span style="font-size:10.5px;color:#aaa;grid-column:1/-1">Generating...</span>';
   var origSnap=snapState();
+
+  // Helper to pick random item
+  function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+  function rnd(min,max){return Math.round(min+Math.random()*(max-min))}
+  function rndH(){var h=Math.floor(Math.random()*360),s=0.6+Math.random()*0.4,l=0.4+Math.random()*0.35;var c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;var r=0,g=0,b=0;if(h<60){r=c;g=x}else if(h<120){r=x;g=c}else if(h<180){g=c;b=x}else if(h<240){g=x;b=c}else if(h<300){r=x;b=c}else{r=c;b=x}return'#'+[r,g,b].map(function(v){return Math.round((v+m)*255).toString(16).padStart(2,'0')}).join('')}
+
+  // 6 radically different personalities
+  var personalities=[
+
+    // 1 — PURE GENERATIVE: No image, no text, full style power, shapes on
+    function(){return{
+      label:'Pure Generative',
+      style:pick(['plasma','galaxy','warp','fractal','circuit','neon']),
+      colorMode:pick(['normal','deep']),
+      colors:[rndH(),rndH(),rndH()],
+      seed:rnd(0,999),cx:rnd(6,10),dn:rnd(6,10),stOp:100,styleOn:true,
+      imgOn:false,
+      shOn:true,shape:pick(SHAPES_LIST),shOp:rnd(15,40),shSz:rnd(2,6),distort:rnd(0,60),
+      shColorOn:Math.random()>.5,shC1:rndH(),shC2:rndH(),shC3:rndH(),
+      txOn:false,
+      vigOn:Math.random()>.4,vigStr:rnd(50,90),vigType:'solid',
+      noiseOn:Math.random()>.5,noiseAmt:rnd(20,50),
+    }},
+
+    // 2 — BOLD TEXT POSTER: Minimal style, huge text, gradient fill, no shapes
+    function(){var p=pick(['normal','pastel','deep']);var pal=pick(PAL[p]||PAL.normal);return{
+      label:'Bold Poster',
+      style:pick(['gradient','minimal','waves']),
+      colorMode:p,colors:pal,
+      seed:rnd(0,999),cx:rnd(2,4),dn:rnd(2,4),stOp:rnd(70,100),styleOn:true,
+      imgOn:false,
+      shOn:false,
+      txOn:true,tl1:'YOUR\nTITLE',
+      tFill:pick(['gradient-h','gradient-v','gradient-d']),
+      tc1:pal[0],tc2:pal[1]||rndH(),tsz:rnd(18,28),tFW:'900',
+      tx2On:Math.random()>.5,tl2:'subtitle text',tsz2:rnd(5,8),tc1s:'#ffffff',
+      vigOn:true,vigStr:rnd(60,90),
+      noiseOn:Math.random()>.4,noiseAmt:rnd(15,35),
+    }},
+
+    // 3 — SHAPES TAKEOVER: Shapes are the hero, style very faded
+    function(){return{
+      label:'Shapes Takeover',
+      style:pick(STYLES),
+      colorMode:'normal',
+      colors:[rndH(),rndH(),rndH()],
+      seed:rnd(0,999),cx:rnd(3,6),dn:rnd(3,6),stOp:rnd(20,50),styleOn:true,
+      imgOn:false,
+      shOn:true,
+      shape:pick(['stars','hearts','hexagons','diamonds','circles','triangles','crosses']),
+      shOp:rnd(50,80),shSz:rnd(5,10),distort:rnd(0,80),
+      shColorOn:true,shC1:rndH(),shC2:rndH(),shC3:rndH(),
+      txOn:Math.random()>.6,tl1:'TITLE',tFill:'solid',tc1:'#ffffff',tsz:rnd(8,14),tFW:'700',
+      vigOn:Math.random()>.5,vigStr:rnd(40,70),
+      noiseOn:false,
+    }},
+
+    // 4 — DEEP & MOODY: Dark palette, heavy vignette, noise, image if available
+    function(){var darkPal=pick(PAL.deep);return{
+      label:'Deep & Moody',
+      style:pick(['galaxy','terrain','plasma','warp','mandala']),
+      colorMode:'deep',colors:darkPal,
+      seed:rnd(0,999),cx:rnd(5,9),dn:rnd(5,9),stOp:rnd(60,90),styleOn:true,
+      imgOn:!!uImg,imgBM:pick(['overlay','multiply','screen','hard-light']),imgOp:rnd(50,80),
+      shOn:Math.random()>.6,shape:pick(['circles','dots','lines','blob']),shOp:rnd(10,25),shSz:rnd(1,4),
+      txOn:Math.random()>.5,tl1:'TITLE',tFill:'solid',tc1:'#ffffff',tsz:rnd(10,16),tFW:'700',
+      vigOn:true,vigStr:rnd(70,100),vigType:pick(['solid','gradient']),
+      noiseOn:true,noiseAmt:rnd(30,60),
+    }},
+
+    // 5 — SOFT PASTEL: Light palette, low opacity, elegant text, minimal everything
+    function(){var pal=pick(PAL.pastel);return{
+      label:'Soft Pastel',
+      style:pick(['waves','watercolor','geometric','minimal']),
+      colorMode:'pastel',colors:pal,
+      seed:rnd(0,999),cx:rnd(2,5),dn:rnd(2,5),stOp:rnd(50,80),styleOn:true,
+      imgOn:false,
+      shOn:Math.random()>.5,shape:pick(['circles','ovals','blob','hearts']),
+      shOp:rnd(10,25),shSz:rnd(2,5),
+      shColorOn:false,
+      txOn:true,tl1:'Your Title',
+      tFill:pick(['solid','gradient-h']),
+      tc1:pick(['#2d2d2d','#1a1a1a','#444']),tc2:pal[0],tsz:rnd(10,16),tFW:pick(['400','700']),
+      tx2On:Math.random()>.5,tl2:'A subtitle for your design',tsz2:rnd(4,7),
+      vigOn:true,vigStr:rnd(30,60),vigType:'solid',
+      noiseOn:false,
+    }},
+
+    // 6 — WILD CARD: Completely random — anything goes
+    function(){var anyMode=pick(['normal','pastel','deep','mono']);var anyPal=pick(PAL[anyMode]||PAL.normal);return{
+      label:'Wild Card',
+      style:pick(STYLES),
+      colorMode:anyMode,colors:anyPal,
+      seed:rnd(0,999),cx:rnd(1,10),dn:rnd(1,10),
+      stOp:rnd(40,100),styleOn:true,
+      imgOn:!!uImg&&Math.random()>.4,
+      imgBM:pick(['overlay','screen','multiply','color-dodge','hard-light','luminosity']),
+      imgOp:rnd(30,90),
+      shOn:Math.random()>.3,shape:pick(SHAPES_LIST),
+      shOp:rnd(10,70),shSz:rnd(1,10),distort:rnd(0,100),
+      shColorOn:Math.random()>.4,shC1:rndH(),shC2:rndH(),shC3:rndH(),
+      txOn:Math.random()>.4,tl1:'TITLE',
+      tFill:pick(['solid','gradient-h','gradient-v','gradient-d']),
+      tc1:rndH(),tc2:rndH(),tsz:rnd(6,24),tFW:pick(['400','700','900']),
+      vigOn:Math.random()>.4,vigStr:rnd(30,90),vigType:pick(['solid','gradient']),
+      noiseOn:Math.random()>.4,noiseAmt:rnd(10,60),
+    }},
+  ];
+
+  // Shuffle so order is different each time
+  var shuffled=personalities.slice().sort(function(){return Math.random()-.5});
+
+  // Apply a config to DOM and render
+  function applyConfig(cfg){
+    // Colors
+    document.getElementById('c1').value=cfg.colors[0]||'#6c63ff';
+    document.getElementById('c2').value=cfg.colors[1]||'#f72585';
+    document.getElementById('c3').value=cfg.colors[2]||'#4cc9f0';
+    // Color mode
+    colorMode=cfg.colorMode||'normal';
+    document.querySelectorAll('.fwb[data-cm]').forEach(function(b){b.classList.toggle('a',b.dataset.cm===colorMode)});
+    // Style
+    cStyle=cfg.style;
+    document.querySelectorAll('.sb').forEach(function(b){b.classList.toggle('a',b.dataset.s===cfg.style)});
+    document.getElementById('style-on').checked=cfg.styleOn!==false;
+    var stOpEl=document.getElementById('st-op');if(stOpEl){stOpEl.value=cfg.stOp||100}
+    document.getElementById('sd').value=cfg.seed||42;
+    var cxEl=document.getElementById('cx');if(cxEl)cxEl.value=cfg.cx||5;
+    var dnEl=document.getElementById('dn');if(dnEl)dnEl.value=cfg.dn||5;
+    // Image
+    var imgOn=cfg.imgOn&&!!uImg;
+    document.getElementById('img-on').checked=imgOn;
+    if(imgOn){
+      bMode=cfg.imgBM||'source-over';
+      document.querySelectorAll('.blb[data-bm]').forEach(function(b){b.classList.toggle('a',b.dataset.bm===bMode)});
+      var ioEl=document.getElementById('io');if(ioEl)ioEl.value=cfg.imgOp||85;
+    }
+    // Shapes
+    document.getElementById('sh-on').checked=!!cfg.shOn;
+    if(cfg.shOn&&cfg.shape){
+      cShape=cfg.shape;
+      document.querySelectorAll('.shb').forEach(function(b){b.classList.toggle('a',b.dataset.sh===cfg.shape)});
+      var soEl=document.getElementById('so');if(soEl)soEl.value=cfg.shOp||40;
+      var ssEl=document.getElementById('ss');if(ssEl)ssEl.value=cfg.shSz||5;
+      var distEl=document.getElementById('sh-dist');if(distEl)distEl.value=cfg.distort||0;
+      var shCbEl=document.getElementById('sh-color-on');
+      if(shCbEl){shCbEl.checked=!!cfg.shColorOn;shColorMode=cfg.shColorOn?'custom':'palette';var shRow=document.getElementById('sh-color-row');if(shRow)shRow.style.display=cfg.shColorOn?'flex':'none';}
+      if(cfg.shColorOn){var sc1=document.getElementById('sh-c1');if(sc1)sc1.value=cfg.shC1||'#ffffff';var sc2=document.getElementById('sh-c2');if(sc2)sc2.value=cfg.shC2||'#f72585';var sc3=document.getElementById('sh-c3');if(sc3)sc3.value=cfg.shC3||'#4cc9f0';}
+    }
+    // Text
+    document.getElementById('tx-on').checked=!!cfg.txOn;
+    var tcDiv=document.getElementById('title-ctrl');if(tcDiv)tcDiv.style.display=cfg.txOn?'block':'none';
+    if(cfg.txOn){
+      var tl1El=document.getElementById('tl1');if(tl1El)tl1El.value=cfg.tl1||'TITLE';
+      tFill=cfg.tFill||'solid';document.querySelectorAll('.fwb[data-fill]').forEach(function(b){b.classList.toggle('a',b.dataset.fill===tFill)});
+      var tc1El=document.getElementById('tc1');if(tc1El)tc1El.value=cfg.tc1||'#ffffff';
+      var tc2El=document.getElementById('tc2');if(tc2El&&cfg.tc2)tc2El.value=cfg.tc2;
+      var tszEl=document.getElementById('tsz');if(tszEl)tszEl.value=cfg.tsz||10;
+      tFW=cfg.tFW||'400';document.querySelectorAll('.fwb[data-w]').forEach(function(b){b.classList.toggle('a',b.dataset.w===tFW)});
+    }
+    var tx2OnEl=document.getElementById('tx2-on');if(tx2OnEl)tx2OnEl.checked=!!cfg.tx2On;
+    var stDiv=document.getElementById('subtitle-ctrl');if(stDiv)stDiv.style.display=cfg.tx2On?'block':'none';
+    if(cfg.tx2On){var tl2El=document.getElementById('tl2');if(tl2El)tl2El.value=cfg.tl2||'subtitle';var tsz2El=document.getElementById('tsz2');if(tsz2El)tsz2El.value=cfg.tsz2||6;}
+    // Vignette
+    var vigOnEl=document.getElementById('vig-on');if(vigOnEl)vigOnEl.checked=!!cfg.vigOn;
+    var vigCtrl=document.getElementById('vig-ctrl');if(vigCtrl)vigCtrl.style.display=cfg.vigOn?'block':'none';
+    if(cfg.vigOn){
+      vigType=cfg.vigType||'solid';
+      document.querySelectorAll('.vigb').forEach(function(b){b.classList.toggle('a',b.dataset.vt===vigType)});
+      document.getElementById('vig-solid-ctrl').style.display=vigType==='solid'?'block':'none';
+      document.getElementById('vig-grad-ctrl').style.display=vigType==='gradient'?'block':'none';
+      var viEl=document.getElementById('vi');if(viEl)viEl.value=Math.round(cfg.vigStr||70);
+    }
+    // Noise
+    var noiseOnEl=document.getElementById('noise-on');if(noiseOnEl)noiseOnEl.checked=!!cfg.noiseOn;
+    var noiseCtrl=document.getElementById('noise-ctrl');if(noiseCtrl)noiseCtrl.style.display=cfg.noiseOn?'block':'none';
+    if(cfg.noiseOn){var naEl=document.getElementById('na');if(naEl)naEl.value=Math.round(cfg.noiseAmt||30);}
+  }
+
   setTimeout(function(){
     bar.innerHTML='';
     for(var idx=0;idx<6;idx++){
-      var p=getCMPalette();var s=STYLES[Math.floor(Math.random()*STYLES.length)];var seed=Math.round(Math.random()*999);
-      // render at higher resolution for better thumb quality
-      var ar=W/H;var tw=120,th=Math.round(ar<1?tw/ar:tw*ar);if(th<tw)th=tw;
-      var hc=document.createElement('canvas');hc.width=tw;hc.height=th;
-      document.getElementById('c1').value=p[0];document.getElementById('c2').value=p[1];document.getElementById('c3').value=p[2];
-      document.getElementById('sd').value=seed;
-      var prevStyle=cStyle;cStyle=s;
-      renderTo(hc,tw,th);cStyle=prevStyle;
-      var img=document.createElement('img');
-      img.src=hc.toDataURL('image/jpeg',0.9);img.className='sthumb';img.title=s;
-      img.dataset.seed=seed;img.dataset.style=s;img.dataset.c1=p[0];img.dataset.c2=p[1];img.dataset.c3=p[2];
-      img.onclick=function(){
-        document.getElementById('c1').value=this.dataset.c1;document.getElementById('c2').value=this.dataset.c2;document.getElementById('c3').value=this.dataset.c3;
-        document.getElementById('sd').value=this.dataset.seed;upd('sd-val',this.dataset.seed,'');
-        cStyle=this.dataset.style;document.querySelectorAll('.sb').forEach(function(b){b.classList.toggle('a',b.dataset.s===img.dataset.style)});
-        gen();document.getElementById('magic-log').textContent='Applied: '+this.dataset.style+' seed:'+this.dataset.seed;
-      };
-      bar.appendChild(img);
+      var cfg=shuffled[idx]();
+      applyConfig(cfg);
+
+      // Render thumbnail
+      var ar=W/H;var tw=120,th=Math.round(W>H?tw*H/W:tw*W/H);
+      if(ar>=1){tw=120;th=Math.round(120*H/W);}else{th=120;tw=Math.round(120*W/H);}
+      var hc=document.createElement('canvas');hc.width=Math.max(tw,60);hc.height=Math.max(th,60);
+      renderTo(hc,hc.width,hc.height);
+
+      var imgEl=document.createElement('img');
+      imgEl.src=hc.toDataURL('image/jpeg',0.88);
+      imgEl.className='sthumb';
+      imgEl.title=cfg.label||cfg.style;
+      var savedCfg=JSON.parse(JSON.stringify(cfg));
+      imgEl.onclick=(function(c){
+        return function(){
+          applyConfig(c);
+          gen();
+          document.getElementById('magic-log').textContent='Applied: '+c.label+' ('+c.style+')';
+        };
+      })(savedCfg);
+      bar.appendChild(imgEl);
     }
     applySnap(origSnap);
-  },10);
+  },20);
 }
 
 // ── MAGIC ──
@@ -1528,11 +2168,14 @@ function magicCombination(){
   var shOn=Math.random()>.4;document.getElementById('sh-on').checked=shOn;
   if(shOn){var sh=SHAPES_LIST[Math.floor(Math.random()*SHAPES_LIST.length)];document.querySelectorAll('.shb').forEach(function(b){b.classList.toggle('a',b.dataset.sh===sh)});cShape=sh;var sv=Math.round(20+Math.random()*60);document.getElementById('so').value=sv;upd('so-val',sv,'%')}
   var vOn=Math.random()>.5;document.getElementById('vig-on').checked=vOn;
+  var vigCtrl2=document.getElementById('vig-ctrl');if(vigCtrl2)vigCtrl2.style.display=vOn?'block':'none';
   if(vOn){var vt=Math.random()>.5?'solid':'gradient';document.querySelectorAll('.vigb').forEach(function(b){b.classList.toggle('a',b.dataset.vt===vt)});vigType=vt;document.getElementById('vig-solid-ctrl').style.display=vt==='solid'?'block':'none';document.getElementById('vig-grad-ctrl').style.display=vt==='gradient'?'block':'none';var viv=Math.round(40+Math.random()*60);document.getElementById('vi').value=viv;upd('vi-val',viv,'%');if(vt==='solid'){document.getElementById('vs1').value=p[0]}else rndVigColors()}
   var nOn=Math.random()>.6;document.getElementById('noise-on').checked=nOn;
+  var noiseCtrl2=document.getElementById('noise-ctrl');if(noiseCtrl2)noiseCtrl2.style.display=nOn?'block':'none';
   var sopv=Math.round(60+Math.random()*40);document.getElementById('st-op').value=sopv;upd('st-op-val',sopv,'%');
   // Text with palette colors
   var txOn=Math.random()>.35;document.getElementById('tx-on').checked=txOn;
+  var titleCtrl3=document.getElementById('title-ctrl');if(titleCtrl3)titleCtrl3.style.display=txOn?'block':'none';
   if(txOn){document.getElementById('tc1').value=p[Math.floor(Math.random()*p.length)];document.getElementById('tc2').value=p[Math.floor(Math.random()*p.length)];var fills=['solid','gradient-h','gradient-d'];var rf=fills[Math.floor(Math.random()*fills.length)];document.querySelectorAll('.fwb[data-fill]').forEach(function(b){b.classList.toggle('a',b.dataset.fill===rf)});tFill=rf}
   document.getElementById('magic-log').textContent='Style: '+s+'\nPalette: '+p.join(', ')+'\nShapes: '+(shOn?cShape:'off')+'\nText: '+(txOn?'on':'off')+'\nVignette: '+(vOn?vigType:'off')+'\nNoise: '+(nOn?'on':'off')+'\nSeed: '+ns;
   gen();
@@ -1572,6 +2215,128 @@ function importPresets(inp){
   r.readAsText(f);inp.value='';
 }
 
+// ── PEXELS SEARCH ──
+var PEX_KEY='nhjR14helpLl16gVI8TW1StdxEfcZMTptkWHu7xiylt1Ce2xYThGepBE';
+var pexCurrentPage=1,pexCurrentQuery='',pexTotalPages=1,pexRefreshCount=0;
+var _pexSearched=false;
+function pexSearchOrMore(){
+  if(!_pexSearched){
+    searchPexels();
+  } else {
+    if(pexRefreshCount>=5){
+      var ctr=document.getElementById('pex-counter');
+      if(ctr)ctr.textContent='Type a new word to search again';
+      return;
+    }
+    pexRefreshCount++;
+    updatePexCounter();
+    searchPexels(pexCurrentPage+1,false);
+  }
+}
+function pexResetBtn(){
+  _pexSearched=false;pexRefreshCount=0;
+  var btn=document.getElementById('pex-search-btn');
+  if(btn){btn.textContent='Search';btn.style.background='#05a081';btn.disabled=false;btn.style.cursor='pointer';btn.style.opacity='1'}
+  var ctr=document.getElementById('pex-counter');if(ctr)ctr.textContent='';
+  var nav=document.getElementById('pex-nav');if(nav)nav.style.display='none';
+}
+function searchPexels(page,isNav){
+  var q=document.getElementById('pex-query').value.trim();
+  if(!q)return;
+  if(!page||page===1){
+    if(!isNav){page=1;pexRefreshCount=0;pexCurrentQuery=q;
+      var btn0=document.getElementById('pex-search-btn');
+      if(btn0){btn0.textContent='Search';btn0.style.background='#05a081';btn0.disabled=false;btn0.style.cursor='pointer';btn0.style.opacity='1'}
+      var ctr0=document.getElementById('pex-counter');if(ctr0)ctr0.textContent='';
+      var nav0=document.getElementById('pex-nav');if(nav0)nav0.style.display='none';
+    }
+  }
+  pexCurrentPage=page||1;
+  var status=document.getElementById('pex-status');
+  var grid=document.getElementById('pex-grid');
+  status.textContent='Searching...';grid.innerHTML='';
+  document.getElementById('pex-credit').textContent='';
+  var ctr=document.getElementById('pex-counter');if(ctr)ctr.textContent='';
+  fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page=9&page='+pexCurrentPage,{
+    headers:{'Authorization':PEX_KEY}
+  })
+  .then(function(r){
+    if(!r.ok){status.textContent='Error searching. Try again.';throw new Error('stop')}
+    return r.json();
+  })
+  .then(function(data){
+    if(!data.photos||data.photos.length===0){status.textContent='No results. Try another search.';return}
+    pexTotalPages=Math.min(5,Math.ceil(data.total_results/9));
+    status.textContent=data.total_results+' photos — click to use';
+    grid.innerHTML='';
+    data.photos.forEach(function(photo){
+      var img=document.createElement('img');
+      img.src=photo.src.medium;
+      img.className='usp-thumb';
+      img.title='Photo by '+photo.photographer+' on Pexels';
+      img.onclick=function(){
+        document.querySelectorAll('.usp-thumb').forEach(function(t){t.classList.remove('selected')});
+        img.classList.add('selected');
+        loadPexelsPhoto(photo);
+      };
+      grid.appendChild(img);
+    });
+    updatePexCounter();
+    updatePexNav();
+    document.getElementById('pex-credit').innerHTML='Photos by <a href="https://www.pexels.com" target="_blank" style="color:#05a081">Pexels</a>';
+  })
+  .catch(function(e){if(e.message!=='stop')status.textContent='Error: '+e.message});
+}
+function updatePexCounter(){
+  var remaining=5-pexRefreshCount;
+  var btn=document.getElementById('pex-search-btn');
+  var ctr=document.getElementById('pex-counter');
+  _pexSearched=true;
+  if(remaining>0){
+    if(btn){btn.innerHTML='&#8635; More results';btn.style.background='#038a6e';btn.style.opacity='1';btn.disabled=false;btn.style.cursor='pointer'}
+    if(ctr)ctr.textContent=remaining+' searches left for this term';
+  } else {
+    if(btn){btn.innerHTML='&#8635; More results';btn.style.background='#ccc';btn.style.cursor='not-allowed';btn.style.opacity='0.6';btn.disabled=false}
+    if(ctr)ctr.textContent='Max reached — type a new term to search again';
+  }
+}
+function updatePexNav(){
+  var nav=document.getElementById('pex-nav');
+  var lbl=document.getElementById('pex-page-lbl');
+  var prev=document.getElementById('pex-prev');
+  var next=document.getElementById('pex-next');
+  if(pexTotalPages>1){
+    if(nav)nav.style.display='flex';
+    if(lbl)lbl.textContent=pexCurrentPage+' / '+pexTotalPages;
+    if(prev)prev.disabled=pexCurrentPage<=1;
+    if(next)next.disabled=pexCurrentPage>=pexTotalPages;
+  } else {
+    if(nav)nav.style.display='none';
+  }
+}
+function pexNav(dir){
+  var newPage=pexCurrentPage+dir;
+  if(newPage<1||newPage>pexTotalPages)return;
+  searchPexels(newPage,true);
+}
+function loadPexelsPhoto(photo){
+  var status=document.getElementById('pex-status');
+  status.textContent='Loading photo...';
+  var img=new Image();
+  img.crossOrigin='anonymous';
+  img.onload=function(){
+    uImg=img;
+    document.getElementById('imgc').style.display='block';
+    document.getElementById('img-on').checked=true;
+    document.getElementById('dz').classList.add('hi');
+    document.getElementById('dl2').textContent='✓ '+photo.photographer+' (Pexels)';
+    status.textContent='✅ Photo loaded! Adjust controls below.';
+    gen();
+  };
+  img.onerror=function(){status.textContent='❌ Error loading. Try another photo.'};
+  img.src=photo.src.original||photo.src.large2x||photo.src.large;
+}
+
 // ── UNSPLASH SEARCH ──
 var USP_KEY='ltScIlyDggIeUNqwokwOxxY-ThclqvfPanMjq5rno-0';
 var uspCurrentPage=1,uspCurrentQuery='',uspTotalPages=1,uspPageOffset=0,uspRefreshCount=0;
@@ -1609,7 +2374,7 @@ function searchUnsplash(page,isNav){
       }
       throw new Error('stop');
     }
-    uspTotalPages=Math.min(5,parseInt(r.headers.get('X-Total-Pages')||5));
+    uspTotalPages=Math.min(3,parseInt(r.headers.get('X-Total-Pages')||3));
     return r.json();
   })
   .then(function(data){
@@ -1639,7 +2404,7 @@ function uspSearchOrMore(){
   if(!_uspSearched){
     searchUnsplash();
   } else {
-    if(uspRefreshCount>=5){
+    if(uspRefreshCount>=3){
       var ctr=document.getElementById('usp-counter');
       if(ctr)ctr.textContent='Type a new word to search again';
       return;
@@ -1665,12 +2430,11 @@ function uspResetBtn(){
   var nav=document.getElementById('usp-nav');if(nav)nav.style.display='none';
 }
 function updateUspCounter(){
-  var remaining=5-uspRefreshCount;
+  var remaining=3-uspRefreshCount;
   var btn=document.getElementById('usp-search-btn');
   var ctr=document.getElementById('usp-counter');
   _uspSearched=true;
   if(remaining>0){
-    // Switch button to ↻ More results
     if(btn){
       btn.innerHTML='&#8635; More results';
       btn.style.background='linear-gradient(135deg,#a855f7,#7c3aed)';
@@ -1678,13 +2442,13 @@ function updateUspCounter(){
     }
     if(ctr)ctr.textContent=remaining+' searches left for this term';
   } else {
-    // Max reached — grey out but NOT disabled (user can still type new word)
+    // Max reached (3) — grey out
     if(btn){
       btn.innerHTML='&#8635; More results';
       btn.style.background='#ccc';
       btn.style.cursor='not-allowed';
       btn.style.opacity='0.6';
-      btn.disabled=false;// keep enabled so typing resets it
+      btn.disabled=false;
     }
     if(ctr)ctr.textContent='Max reached — type a new term to search again';
   }
@@ -1747,6 +2511,10 @@ function copyLink(){
     document.body.removeChild(ta);
   }
 }
+function shareFacebook(){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(APP_URL),'_blank')}
+function shareTwitter(){window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent('Create stunning wallpapers for free — HD & 4K, no signup needed! 🎨')+'&url='+encodeURIComponent(APP_URL),'_blank')}
+function shareLinkedIn(){window.open('https://www.linkedin.com/shareArticle?mini=true&url='+encodeURIComponent(APP_URL)+'&title='+encodeURIComponent('Free Wallpaper Generator — HD & 4K'),'_blank')}
+function shareTelegram(){window.open('https://t.me/share/url?url='+encodeURIComponent(APP_URL)+'&text='+encodeURIComponent('Create stunning wallpapers for free — HD & 4K, no signup needed! 🎨'),'_blank')}
 function shareGmail(){
   var subject=encodeURIComponent('🎨 Generador de Wallpapers Gratis — productosdescargables.com');
   var body=encodeURIComponent('¡Mira esta herramienta increíble para crear wallpapers únicos gratis!\n\n'+APP_URL+'\n\nSin registro, sin instalación. Exporta en HD, 2K y 4K.');
@@ -1805,6 +2573,39 @@ document.addEventListener('fullscreenchange',function(){
 function initApp(){
   mkPad('ip','id2','ip-lbl',function(x,y){iPX=x;iPY=y;gen()});
   mkPad('tp2','td','tp-lbl',function(x,y){tPX=x;tPY=y;gen()});
+  // ── Accordion: wrap .sub sections dynamically ──
+  // Sections to collapse by default (advanced ones)
+  var collapsedByDefault=['Style opacity','Transforms','Colors','Color','Distort','Blend mode','Blend Color','Color Overlay','Color grading','Adjustments','Filters','Transform','Shadow (shared)','Position — drag pad or click canvas','Position — drag pad or click canvas button'];
+  document.querySelectorAll('.tp').forEach(function(panel){
+    var subs=panel.querySelectorAll('.sub');
+    subs.forEach(function(sub){
+      var label=sub.textContent.trim();
+      // Find all sibling elements until next .sub or end of panel
+      var siblings=[];
+      var el=sub.nextElementSibling;
+      while(el&&!el.classList.contains('sub')&&!el.classList.contains('acc-hdr')){
+        siblings.push(el);
+        el=el.nextElementSibling;
+      }
+      if(siblings.length===0)return;
+      var collapsed=collapsedByDefault.indexOf(label)!==-1;
+      // Create header
+      var hdr=document.createElement('div');
+      hdr.className='acc-hdr'+(collapsed?'':' open');
+      hdr.innerHTML='<span style="font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)">'+label+'</span><span class="acc-arrow">▼</span>';
+      // Create body wrapper
+      var body=document.createElement('div');
+      body.className='acc-body'+(collapsed?' closed':'');
+      // Move siblings into body
+      siblings.forEach(function(s){body.appendChild(s)});
+      // Replace sub with hdr + body
+      sub.parentNode.insertBefore(hdr,sub);
+      sub.parentNode.insertBefore(body,sub);
+      sub.parentNode.removeChild(sub);
+      // Click handler
+      hdr.addEventListener('click',function(){acc(hdr)});
+    });
+  });
   // ── Sliders: wheel only works when slider is focused (clicked) ──
   var focusedRange=null;
   document.getElementById('pb').addEventListener('focusin',function(e){
@@ -1844,6 +2645,22 @@ window.addEventListener('resize',function(){gen()});
   <!-- Share menu popup -->
   <div id="share-menu" style="display:none;flex-direction:column;gap:6px;background:#1a1a2e;border-radius:14px;padding:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);margin-bottom:4px">
     <div style="font-size:10px;color:#888;text-align:center;padding:2px 0 6px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:2px">🔗 Share this <strong style="color:#a0a0c0">tool</strong> — not the design</div>
+    <button onclick="shareFacebook()" style="display:flex;align-items:center;gap:8px;background:#1877f2;border:none;border-radius:9px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      Facebook
+    </button>
+    <button onclick="shareTwitter()" style="display:flex;align-items:center;gap:8px;background:#000;border:none;border-radius:9px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      Twitter / X
+    </button>
+    <button onclick="shareLinkedIn()" style="display:flex;align-items:center;gap:8px;background:#0077b5;border:none;border-radius:9px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      LinkedIn
+    </button>
+    <button onclick="shareTelegram()" style="display:flex;align-items:center;gap:8px;background:#229ed9;border:none;border-radius:9px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+      Telegram
+    </button>
     <button onclick="shareGmail()" style="display:flex;align-items:center;gap:8px;background:#ea4335;border:none;border-radius:9px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.910 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>
       Gmail
@@ -1862,6 +2679,11 @@ window.addEventListener('resize',function(){gen()});
       About the app
     </button>
   </div>
+  <!-- Gallery FAB button -->
+  <button class="fab-btn" onclick="window.open('https://www.productosdescargables.com/wallpaper_gallery','_blank')" title="Gallery — Get inspired" style="background:linear-gradient(135deg,#a855f7,#6c63ff)">
+    <span class="fab-tip">Gallery — Get inspired</span>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M21 3H3C2 3 1 4 1 5v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-9-7l-4 5h8l-3-4-2 2.5z"/></svg>
+  </button>
   <!-- Main FAB button -->
   <button class="fab-btn" id="fab-share" onclick="shareApp()" title="Share this tool">
     <span class="fab-tip">Share this tool</span>
