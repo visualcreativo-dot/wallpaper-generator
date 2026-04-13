@@ -36,11 +36,12 @@ body {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 16px;
   overflow-x: hidden;
+  position: relative;
 }
 
 /* ── ANIMATED BACKGROUND ── */
 .bg-mesh {
-  position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+  position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
 }
 .bg-orb {
   position: absolute; border-radius: 50%;
@@ -70,18 +71,18 @@ body {
 @keyframes drift3 { to{transform:translate(-50%,-50%) scale(1.4)} }
 
 .bg-grid {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
   background-image:
     linear-gradient(rgba(108,99,255,0.035) 1px, transparent 1px),
     linear-gradient(90deg, rgba(108,99,255,0.035) 1px, transparent 1px);
   background-size: 64px 64px;
 }
 
-.wrap { position: relative; z-index: 1; }
+.wrap { position: relative; z-index: 1; min-height: 100%; }
 
 /* ── NAV ── */
 nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  position: sticky; top: 0; left: 0; right: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 48px;
   background: rgba(8,8,18,0.85);
@@ -126,11 +127,10 @@ nav {
 
 /* ── HERO ── */
 .hero {
-  min-height: 100svh;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   text-align: center;
-  padding: 130px 24px 80px;
+  padding: 100px 24px 80px;
 }
 .hero-badge {
   display: inline-flex; align-items: center; gap: 8px;
@@ -617,7 +617,7 @@ body.lang-en [data-es] { display:none !important; }
 </head>
 <body class="lang-en">
 
-<div class="bg-mesh">
+<div style="position:relative;min-height:100%;overflow:hidden"><div class="bg-mesh">
   <div class="bg-orb bg-orb1"></div>
   <div class="bg-orb bg-orb2"></div>
   <div class="bg-orb bg-orb3"></div>
@@ -1083,6 +1083,7 @@ body.lang-en [data-es] { display:none !important; }
 </footer>
 
 </div><!-- /wrap -->
+</div><!-- /bg-container -->
 
 <script>
 // ── LANGUAGE ──
